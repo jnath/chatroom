@@ -11,7 +11,7 @@
   import Email from '../components/Email.svelte';
   import Header from '../components/Header.svelte';
   import Form from '../components/Form.svelte';
-  import Button from '../components/Button.svelte';
+  import Button from '$components/Button.svelte';
   import Password from '../components/Password.svelte';
   import ConfirmPassword from '../components/ConfirmPassword.svelte';
   import Text from '../components/Text.svelte';

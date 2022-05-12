@@ -1,11 +1,13 @@
 <script lang="ts">
-  export let message: string;
+  export let text: string;
 </script>
-<div class="Message">
-  <p>{message}</p>
+
+<div>
+  <p>{text}</p>
 </div>
+
 <style lang="postcss">
-  .Message{
+  div {
     & > p {
       background-color: rgb(228, 230, 235);
       border-bottom-left-radius: 18px;
@@ -14,7 +16,6 @@
       border-top-right-radius: 18px;
       direction: ltr;
       display: block;
-      font-family: Helvetica, Arial, sans-serif;
       font-size: 15px;
       line-height: 20.1px;
       overflow-wrap: break-word;

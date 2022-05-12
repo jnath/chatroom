@@ -1,116 +1,143 @@
 <script lang="ts">
-  import { getDocs, query, type Firestore } from 'firebase/firestore';
+  import type { Firestore } from 'firebase/firestore';
 
-  import { onDestroy, onMount } from 'svelte';
-  import { collection, addDoc, doc, onSnapshot, type Unsubscribe } from "firebase/firestore";
+  import { create, type StoreFirestore } from '$stores/firestore';
 
-  import Message from '../Message.svelte';
-  import TextArea from '../TextArea.svelte';
+  import scrollBottom from '$directives/scrollBottom'
 
-  export let db: Firestore;
+  import { roomConverter } from '$models/Room';
+  import { userConverter } from '$models/User';
+  import { messageConverter, MessageData } from '$models/Message';
 
-  let messages: string[];
-  $: messages = [];
+  import Message from '$components/Message.svelte';
+  import TextArea from '$components/TextArea.svelte';
+  import NavContainer from '$components/NavContainer';
+  import Room from '$components/Room.svelte';
+  import User from '$components/User.svelte';
+  import List from '$components/List.svelte';
+  import Logo from '$components/Logo.svelte';
+import Typography from '$components/Typography';
 
-  let unsubscribe: Unsubscribe;
+  export let firestore: Firestore;
 
-  onMount(async ()=>{
+  let messagesEl: HTMLElement;
+  let textAreaEl: TextArea;
 
-    // unsub = onSnapshot(doc(db, "message"), (doc) => {
-    //     console.log("Current data: ", doc.data());
-    // });
-    // const querySnapshot = await getDocs(collection(db, "messages"));
-    // querySnapshot.forEach((doc) => {
-    //   // doc.data() is never undefined for query doc snapshots
-    //   console.log(doc.id, " => ", doc.data());
-    // });
+  const rooms = create(firestore, roomConverter, 'rooms');
+  const users = create(firestore, userConverter, 'users');
 
-    const q = query(collection(db, "messages"));
-
-    // unsubscribe = onSnapshot(q, (querySnapshot) => {
-    //   console.log('totototototototo')
-    //   querySnapshot.forEach((doc) => {
-    //       console.log(doc.data())
-    //   });
-    // });
-
-    // onSnapshot(q, (snapshot) => {
-    //   snapshot.docChanges().forEach((change) => {
-    //     console.log('do change')
-    //     console.log(change);
-
-    //   });
-    // });
-
-    onSnapshot(q, (snapshot) => {
-      console.log('snap', snapshot);
-      snapshot.docChanges().forEach((change) => {
-        console.log('change', change);
-        messages = [...messages, change.doc.data().message]
-      });
-    });
-  })
+  let messages: StoreFirestore<MessageData> | undefined;
 
   let input = '';
-
-
-  const sendMessage = async ()=>{
-    console.log('send', input);
-    try {
-      const docRef = await addDoc(collection(db, "messages"), {
-        message: input
-      });
-      console.log("Document written with ID: ", docRef.id);
-    } catch (e) {
-      console.error("Error adding document: ", e);
+  const sendMessage = async () => {
+    if(!input || !messages){
+      return
     }
-    input = ''
+    messages.add(new MessageData({ text: input }))
+    textAreaEl.reset();
+    messagesEl.scrollTo({
+      behavior: 'smooth',
+      top: messagesEl.scrollHeight
+    })
   }
 
-  onDestroy(()=>{
-    unsubscribe && unsubscribe();
-  })
+  const onSelectRoom = ({ detail: { id }}: CustomEvent<{id: string}>)=>{
+    messages = create(firestore, messageConverter, 'rooms', id, 'messages')
+  }
 </script>
 
 <div class="wrapper">
-  <aside class="sidebar-first"></aside>
-  <main class="main">
-    <div id="messages">
-      {#each messages as message}
-        <Message {message}/>
+  <header>
+    <Logo />
+  </header>
+  <nav>
+    <NavContainer title="Rooms">
+      <List>
+        {#each $rooms as data}
+          <Room {...data} on:select={onSelectRoom} />
+        {/each}
+      </List>
+    </NavContainer>
+    <List>
+      <Typography
+        tag="h3"
+        --transform='uppercase'
+        --padding="0 0 0 8px"
+      >Users</Typography>
+      {#each $users as data}
+        <User {...data} />
       {/each}
-    </div>
-    <TextArea bind:value={input} on:send={sendMessage} />
-  </main>
-  <aside class="sidebar-second">Sidebar second: Fixed width</aside>
+    </List>
+  </nav>
+  {#if $messages}
+    <main class="content">
+
+      <div id="messages" use:scrollBottom bind:this={messagesEl}>
+        {#each $messages as message}
+          <Message {...message} />
+        {/each}
+      </div>
+      <TextArea
+        bind:this={textAreaEl}
+        bind:value={input}
+        on:send={sendMessage}
+        />
+      </main>
+    {/if}
+  <aside></aside>
+  <footer></footer>
 </div>
 
 <style lang="postcss">
-  #messages{
-    flex: 1;
+  :root{
+    --border-color: var(--background-secondary);
+    --header-size: 64px;
+  }
+
+  #messages {
     overflow: auto;
+    flex-grow: 1;
   }
-  .wrapper{
+  .wrapper {
     height: 100vh;
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template-rows: var(--header-size) calc(100vh - var(--header-size)) 0px;
+    grid-template-columns: 200px calc(100vw - 200px) 0px;
+    grid-template-areas:
+      "header header header"
+      "nav content sidebar"
+      "footer footer footer"
   }
-  .main{
-    flex: 1;
+  .content {
+    grid-area: content;
     display: flex;
     flex-direction: column;
   }
-  .sidebar-first{
-    width: 50px;
-    background: rgb(24, 24, 24);
+  header {
+    grid-area: header;
+    background: white;
+    border-bottom: 1px solid var(--border-color);
+    padding: 16px;
   }
-  .sidebar-second{
-    width: 0%;
-    overflow: auto;
-    &.open {
-      width: 30%;
-    }
-    background: rgb(255, 255, 255);
+  nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    grid-area: nav;
+    background: white;
+    border-right: 1px solid var(--border-color);
+    overflow-y: auto;
 
+    & > :global(*:not(:last-child)){
+      border-bottom: 1px solid var(--border-color);
+    }
+  }
+
+  aside {
+    grid-area: sidebar;
+  }
+
+  footer {
+    height: 0px;
   }
 </style>

@@ -11,7 +11,7 @@
   import Form from '../components/Form.svelte';
   import Email from '../components/Email.svelte';
   import Password from '../components/Password.svelte';
-  import Button from '../components/Button.svelte';
+  import Button from '$components/Button.svelte';
 
   let emailValue:string;
   let passwordValue: string;
@@ -33,6 +33,10 @@
   <Email bind:value={emailValue} name="email"/>
   <Password bind:value={passwordValue} name="password" />
 
-  <Button on:click={send} disabled={!valid}>Login</Button>
+  <Button
+    on:click={send}
+    disabled={!valid}
+    --background="var(--primary-color)"
+  >Login</Button>
 </Form>
 <p>Create account <a href="#register" >here</a></p>

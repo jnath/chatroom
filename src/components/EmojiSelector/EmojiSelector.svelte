@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { EmojiData } from './data';
 
-	import { createEventDispatcher, onMount, SvelteComponent, tick } from 'svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
 
 	import {
 		faBuilding,
@@ -14,7 +14,6 @@
 	import Icon from 'fa-svelte/src/Icon.svelte';
 	import { createPopperActions } from '../../directives/popper';
 
-	// import ClickOutside from 'svelte-click-outside';
 	import clickOutside from '../../directives/clickOutside';
 	import { Tabs, Tab, TabList, TabPanel } from 'svelte-tabs';
 
@@ -30,9 +29,6 @@
 
 	export let maxRecents = 50;
 	export let autoClose = true;
-
-	let triggerButtonEl: HTMLButtonElement;
-	let pickerEl: HTMLDivElement;
 
 	let variantsVisible = false;
 	let pickerVisible = false;
@@ -150,25 +146,16 @@
 </script>
 
 <svelte:body on:keydown={onKeyDown} />
-<!-- <button
-  class="svelte-emoji-picker__trigger"
-  bind:this={triggerButtonEl}
-  on:click={togglePicker}
-  use:popperRef
-  > -->
-<button class="svelte-emoji-picker__trigger" on:click={togglePicker} use:popperRef>
+<button on:click={togglePicker} use:popperRef>
 	<Icon icon={smileIcon} />
 </button>
 
 {#if pickerVisible}
-	<!-- <ClickOutside on:clickoutside={hidePicker} exclude={[triggerButtonEl]}> -->
-	<!-- <div
-      class="svelte-emoji-picker"
-      bind:this={pickerEl}
-      on:keydown={onKeyDown}
-      use:clickOutside={hidePicker}
-    > -->
-	<div class="svelte-emoji-picker" use:popperContent={extraOpts}>
+	<div
+		class="svelte-emoji-picker"
+		use:popperContent={extraOpts}
+		use:clickOutside={hidePicker}
+	>
 		<EmojiSearch bind:searchText />
 		{#if searchText}
 			<EmojiSearchResults
@@ -213,7 +200,6 @@
 
 		<EmojiDetail emoji={currentEmoji} />
 	</div>
-	<!-- </ClickOutside> -->
 {/if}
 
 <style lang="postcss">
@@ -238,19 +224,7 @@
 		padding: 2px;
 	}
 
-	.svelte-emoji-picker__trigger {
-		cursor: pointer;
-	}
-
-	/* .svelte-emoji-picker__emoji-tabs {
-    padding: 0.25em;
-  } */
-
 	:global(.svelte-emoji-picker__emoji-tabs .svelte-tabs ul.svelte-tabs__tab-list) {
 		display: flex;
 	}
-
-	/* :global(.svelte-emoji-picker__emoji-tabs .svelte-tabs li.svelte-tabs__tab) {
-    flex-grow: 1;
-  } */
 </style>

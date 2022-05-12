@@ -4,6 +4,8 @@
   import EmojiSelector from './EmojiSelector';
 
   import { createEventDispatcher } from 'svelte';
+  import Button from '$components/Button.svelte';
+
   export let value: string;
 
 	const dispatch = createEventDispatcher();
@@ -20,9 +22,13 @@
     value += event.detail;
   }
 
+  export const reset = ()=>{
+    value = '';
+  }
+
 </script>
 
-<div class="TextArea">
+<div>
   <input
     bind:value={value}
     autocomplete="off"
@@ -31,19 +37,26 @@
     placeholder="Aa"
   />
   <EmojiSelector on:emoji={onEmoji}  />
-  <button on:click={send} >
+  <Button
+    on:click={send}
+    --width='25px'
+    --color='var(--primary-color)'
+    --padding='4px 0 0 0'
+  >
     <MdSend />
-  </button>
+  </Button>
 </div>
 
 
 <style lang="postcss">
-  .TextArea {
+  div {
     display: flex;
     padding: 5px 10px;
+    gap: 10px;
+    border-top: solid 1px var(--background-secondary);
+
     & > input {
       flex: 1;
-
     }
 
     input{
@@ -59,40 +72,6 @@
     input:focus {
       outline: none;
       color: #2d9fd9;
-    }
-
-    :global(button) {
-      border: none;
-      margin: 0;
-      padding: 0;
-      width: auto;
-      overflow: visible;
-
-      background: transparent;
-
-      /* inherit font & color from ancestor */
-      color: inherit;
-      font: inherit;
-
-      /* Normalize `line-height`. Cannot be changed from `normal` in Firefox 4+. */
-      line-height: normal;
-
-      /* Corrects font smoothing for webkit */
-      -webkit-font-smoothing: inherit;
-      -moz-osx-font-smoothing: inherit;
-
-      /* Corrects inability to style clickable `input` types in iOS */
-      -webkit-appearance: none;
-
-      width: 25px;
-      margin: 0px 5px;
-      color: rgb(0, 153, 255);
-
-      cursor: pointer;
-    }
-
-    :global(.svelte-emoji-picker){
-
     }
   }
 </style>
