@@ -2,24 +2,77 @@ import { writable } from 'svelte/store';
 import {
   addDoc,
   collection,
+  doc,
   onSnapshot,
   query,
+  QueryConstraint,
+  setDoc,
+  updateDoc,
   type Firestore,
-  type FirestoreDataConverter
+  type FirestoreDataConverter,
+  type UpdateData
 } from 'firebase/firestore';
 
-export type StoreFirestore<T> = SvelteStore<T[]> & { add(message: T): Promise<void> };
+export { orderBy, where, limit } from 'firebase/firestore';
 
-export const create = <T>(
+export type StoreFirestoreCollection<T> = SvelteStore<T[]> & {
+  add(doc: T): Promise<void>
+};
+
+export type StoreFirestoreDocument<T> = SvelteStore<T> & {
+  set(doc: T): Promise<void>;
+  update(doc: UpdateData<T>): Promise<void>;
+};
+
+export const createStoreDoc = <T>({firestore, converter, paths = [] }:{
   firestore: Firestore,
   converter: FirestoreDataConverter<T>,
-  path:string, ...pathSegments: string[]
-): StoreFirestore<T>  => {
-  const {update, subscribe} = writable<T[]>([]);
+  paths: string[] | string
+}): StoreFirestoreDocument<T>  => {
+  const {set, subscribe} = writable<T>();
+  const [path, ...pathSegments] = Array.isArray(paths) ? paths : [paths];
+  const docRef = doc(firestore, path, ...pathSegments).withConverter(converter)
+  onSnapshot(docRef, (doc) => {
+    const data = doc.data();
+    if(data){
+      set(data);
+    }
+  });
+
+  return {
+    subscribe,
+    async set(doc: T){
+      try {
+        await setDoc(docRef, doc, {
+          merge: true
+        });
+      } catch (e) {
+        console.error("Error setting document: ", e);
+      }
+    },
+    async update(doc: UpdateData<T>){
+      try {
+        await updateDoc(docRef, doc);
+      } catch (e) {
+        console.error("Error updating document: ", e);
+      }
+    }
+  }
+}
+
+export const createStoreCollection = <T>({firestore, converter, containtes = [], paths = [] }:{
+  firestore: Firestore,
+  converter: FirestoreDataConverter<T>,
+  containtes?: QueryConstraint[] | QueryConstraint,
+  paths: string[] | string
+}): StoreFirestoreCollection<T>  => {
+  const {update: upsateStore, subscribe} = writable<T[]>([]);
+  const [path, ...pathSegments] = Array.isArray(paths) ? paths : [paths];
   const collectionRef = collection(firestore, path, ...pathSegments).withConverter(converter);
-  const q = query(collectionRef);
+  const queryConstraint = Array.isArray(containtes) ? containtes : [containtes];
+  const q = query(collectionRef, ...queryConstraint);
   onSnapshot(q, (snapshot) => {
-    update((datas)=>{
+    upsateStore((datas)=>{
       const changes = snapshot.docChanges();
       const newData = changes
         .filter((change)=> change.type === 'added')
@@ -30,12 +83,11 @@ export const create = <T>(
     })
   });
 
-
   return {
     subscribe,
-    async add(message: T){
+    async add(doc: T){
       try {
-        await addDoc(collectionRef, message);
+        await addDoc(collectionRef, doc);
       } catch (e) {
         console.error("Error adding document: ", e);
       }

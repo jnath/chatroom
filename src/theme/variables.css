@@ -1,0 +1,88 @@
+:root {
+  --palette-primary-main: #1976d2;
+  --palette-primary-light: #42a5f5;
+  --palette-primary-dark: #1565c0;
+  --palette-primary-contrast: white;
+
+  --palette-secondary-main: #9c27b0;
+  --palette-secondary-light: #ba68c8;
+  --palette-secondary-dark: #7b1fa2;
+  --palette-secondary-contrast: white;
+
+  --palette-divider: rgba(0, 0, 0, 0.12);
+
+  --action-disabledBackground: rgba(0, 0, 0, 0.12);
+  --action-disabled: rgba(0, 0, 0, 0.26);
+  --action-hover: rgba(0, 0, 0, 0.04);
+  --action-active: rgba(0, 0, 0, 0.54);
+  --action-selectedOpacity: 0.8;
+
+  --fontFamily: Inter, Helvetica, Arial, sans-serif;
+
+  --fontWeight-light: 300;
+  --fontWeight-regular: 400;
+  --fontWeight-medium: 500;
+  --fontWeight-bold: 700;
+
+  --headline1-fontSize: 6rem;
+  --headline1-fontWeight: var(--fontWeight-light);
+  --headline1-lineHeight: 1.167;
+  --headline1-letterSpacing: -0.01562em;
+
+  --headline2-fontSize: 3.75rem;
+  --headline2-fontWeight: var(--fontWeight-light);
+  --headline2-lineHeight: 1.2;
+  --headline2-letterSpacing: -0.00833em;
+
+  --headline3-fontSize: 3rem;
+  --headline3-fontWeight: var(--fontWeight-regular);
+  --headline3-lineHeight: 1.167;
+  --headline3-letterSpacing: 0em;
+
+  --headline4-fontSize: 2.125rem;
+  --headline4-fontWeight: var(--fontWeight-regular);
+  --headline4-lineHeight: 1.135;
+  --headline4-letterSpacing: 0.00735em;
+
+  --headline5-fontSize: 1.5rem;
+  --headline5-fontWeight: var(--fontWeight-regular);
+  --headline5-lineHeight: 1.334;
+  --headline5-letterSpacing: 0em;
+
+  --headline6-fontSize: 1.25rem;
+  --headline6-fontWeight: var(--fontWeight-medium);
+  --headline6-lineHeight: 1.6;
+  --headline6-letterSpacing: 0.0075em;
+
+  --subtitle1-fontSize: 1rem;
+  --subtitle1-fontWeight: var(--fontWeight-regular);
+  --subtitle1-lineHeight: 1.75;
+  --subtitle1-letterSpacing: 0.00938em;
+
+  --subtitle2-fontSize: 0.875rem;
+  --subtitle2-fontWeight: var(--fontWeight-medium);
+  --subtitle2-lineHeight: 1.57;
+  --subtitle2-letterSpacing: 0.00714em;
+
+  --body1-fontSize: 1rem;
+  --body1-fontWeight: var(--fontWeight-regular);
+  --body1-lineHeight: 1.5;
+  --body1-letterSpacing: 0.00938em;
+
+  --body2-fontSize: 0.875rem;
+  --body2-fontWeight: var(--fontWeight-regular);
+  --body2-lineHeight: 1.43;
+  --body2-letterSpacing: 0.01071em;
+
+  --caption-fontSize: 0.875rem;
+  --caption-fontWeight: var(--fontWeight-medium);
+  --caption-lineHeight: 1.75;
+  --caption-letterSpacing: 0.02857em;
+  --caption-textTransform: uppercase;
+
+  --button-fontSize: 0.875rem;
+  --button-fontWeight: 500;
+  --button-lineHeight: 1.75;
+  --button-letterSpacing: -0.02857em;
+  --button-textTransform: uppercase;
+}

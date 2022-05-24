@@ -7,6 +7,7 @@ const config = {
 	// Consult https://github.com/sveltejs/svelte-preprocess
 	// for more information about preprocessors
 	preprocess: preprocess({
+    typescript: true,
 		postcss: true
 	}),
 
@@ -16,10 +17,12 @@ const config = {
       resolve: {
         alias: {
           $components: path.resolve('./src/components'),
+          $system: path.resolve('./src/system'),
           $directives: path.resolve('./src/directives'),
           $models: path.resolve('./src/models'),
           $stores: path.resolve('./src/stores'),
           $helpers: path.resolve('./src/helpers'),
+          $theme: path.resolve('./src/theme'),
         }
       }
     }

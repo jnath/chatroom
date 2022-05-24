@@ -4,7 +4,7 @@
   import EmojiSelector from './EmojiSelector';
 
   import { createEventDispatcher } from 'svelte';
-  import Button from '$components/Button.svelte';
+  import Button from '$system/Button';
 
   export let value: string;
 
@@ -40,7 +40,7 @@
   <Button
     on:click={send}
     --width='25px'
-    --color='var(--primary-color)'
+    --color='var(--palette-primary-main)'
     --padding='4px 0 0 0'
   >
     <MdSend />
@@ -53,7 +53,7 @@
     display: flex;
     padding: 5px 10px;
     gap: 10px;
-    border-top: solid 1px var(--background-secondary);
+    border-top: solid 1px var(--palette-divider);
 
     & > input {
       flex: 1;

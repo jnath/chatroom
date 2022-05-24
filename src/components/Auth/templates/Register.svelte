@@ -2,7 +2,7 @@
   export interface RegisterFields {
     email: string;
     password: string;
-    pseudo: string;
+    username: string;
   }
 </script>
 <script lang="ts">
@@ -11,14 +11,14 @@
   import Email from '../components/Email.svelte';
   import Header from '../components/Header.svelte';
   import Form from '../components/Form.svelte';
-  import Button from '$components/Button.svelte';
+  import Button from '$system/Button/Button.svelte';
   import Password from '../components/Password.svelte';
   import ConfirmPassword from '../components/ConfirmPassword.svelte';
   import Text from '../components/Text.svelte';
 
   let emailValue:string;
   let passwordValue: string;
-  let pseudoValue: string;
+  let usernameValue: string;
 
   const dispatch = createEventDispatcher();
 
@@ -26,7 +26,7 @@
     dispatch('send', {
       email: emailValue,
       password: passwordValue,
-      pseudo: pseudoValue
+      username: usernameValue
     } as RegisterFields)
   }
 
@@ -40,14 +40,14 @@
   <ConfirmPassword name="password2" />
 
   <Text
-    bind:value={pseudoValue}
-    name="pseudo"
-    placeholder="Pseudo"
+    bind:value={usernameValue}
+    name="username"
+    placeholder="Username"
     autocomplete="nickname"
     required
     minLength={3}
   />
 
-  <Button on:click={send} disabled={!valid}>Registration</Button>
+  <Button variant="container" on:click={send} disabled={!valid}>Registration</Button>
 </Form>
 <p>Login <a href="#login" >here</a></p>

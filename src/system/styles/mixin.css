@@ -1,0 +1,7 @@
+@define-mixin font $type {
+  font-size: var(--$(type)-fontSize);
+  font-weight: var(--$(type)-fontWeight);
+  line-height: var(--$(type)-lineHeight);
+  letter-spacing: var(--$(type)-letterSpacing);
+  text-transform: var(--$(type)-textTransform, var(--transform));
+}

@@ -1,44 +1,32 @@
-import type { FirebaseApp } from 'firebase/app';
 import {
   getAuth,
   signInWithEmailAndPassword,
-  type ParsedToken
+  createUserWithEmailAndPassword,
+  updateProfile,
+  type User
 } from "firebase/auth";
 import { readable } from 'svelte/store';
-export interface User {
-  id?: string | object;
-  name?: string | object;
-  email?: string | object;
-  picture?: string | object;
-}
 
-const userMapper = (claims: ParsedToken): User => ({
-  id: claims.user_id,
-  name: claims.name,
-  email: claims.email,
-  picture: claims.picture
-});
 
 // construction function. need to call it after we
 // initialize our firebase app
-export const initAuth = (firebaseApp: FirebaseApp, useRedirect = false) => {
-  const auth = getAuth(firebaseApp);
+export const initAuth = (useRedirect = false) => {
+  const auth = getAuth();
 
   const loginWithEmailPassword = (email: string, password: string) =>
-    auth && signInWithEmailAndPassword(auth, email, password);
+    signInWithEmailAndPassword(auth, email, password);
+
+  const registerWithEmailPassword = (email: string, password: string) =>
+    createUserWithEmailAndPassword(auth, email, password);
 
   const logout = () => auth && auth.signOut();
 
+  let firebaseUser: User | null = null;
   // wrap Firebase user in a Svelte readable store
   const user = readable<User | null>(null, set => {
-    const unsub = auth.onAuthStateChanged(async fireUser => {
-      if (fireUser) {
-        const token = await fireUser.getIdTokenResult();
-        const user = userMapper(token.claims);
-        set(user);
-      } else {
-        set(null);
-      }
+    const unsub = auth.onAuthStateChanged(async authUser => {
+      firebaseUser = authUser;
+      set(firebaseUser);
     });
 
     return unsub;
@@ -47,6 +35,11 @@ export const initAuth = (firebaseApp: FirebaseApp, useRedirect = false) => {
   return {
     user,
     loginWithEmailPassword,
+    registerWithEmailPassword,
+    updateProfile: async (profile: {
+        displayName?: string | null;
+        photoURL?: string | null;
+    }) => firebaseUser && await updateProfile(firebaseUser, profile),
     logout
   };
 };

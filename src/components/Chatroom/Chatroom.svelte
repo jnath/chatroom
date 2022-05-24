@@ -1,7 +1,14 @@
 <script lang="ts">
-  import type { Firestore } from 'firebase/firestore';
+  import { type Firestore, Timestamp } from 'firebase/firestore';
+  import type { User } from 'firebase/auth';
 
-  import { create, type StoreFirestore } from '$stores/firestore';
+  import {
+    type StoreFirestoreCollection,
+    orderBy,
+    where,
+    limit,
+    createStoreCollection,
+  } from '$stores/firestore';
 
   import scrollBottom from '$directives/scrollBottom'
 
@@ -9,31 +16,61 @@
   import { userConverter } from '$models/User';
   import { messageConverter, MessageData } from '$models/Message';
 
+  import List from '$system/List/List.svelte';
+  import Button from '$system/Button';
+  import Avatar from '$system/Avatar';
+  import MenuItem from '$system/Menu/MenuItem.svelte';
+  import Menu from '$system/Menu';
+  import Modal from '$system/Modal';
+
   import Message from '$components/Message.svelte';
   import TextArea from '$components/TextArea.svelte';
   import NavContainer from '$components/NavContainer';
-  import Room from '$components/Room.svelte';
-  import User from '$components/User.svelte';
-  import List from '$components/List.svelte';
   import Logo from '$components/Logo.svelte';
-import Typography from '$components/Typography';
+  import ListItemRoom from '$components/ListItemRoom.svelte';
+  import ListItemUser from '$components/ListItemUser.svelte';
+  import Profile from '$components/Profile';
 
   export let firestore: Firestore;
+  export let user: User;
 
   let messagesEl: HTMLElement;
   let textAreaEl: TextArea;
 
-  const rooms = create(firestore, roomConverter, 'rooms');
-  const users = create(firestore, userConverter, 'users');
+  const roomsOrdered = createStoreCollection({
+    firestore,
+    converter: roomConverter,
+    containtes: [where('order', '>=', 0), orderBy('order', 'asc')],
+    paths: 'rooms'
+  });
+  const roomsUnordered = createStoreCollection({
+    firestore,
+    converter: roomConverter,
+    containtes: [where('order', '<', 0), orderBy('order', 'desc'), orderBy('title', 'asc')],
+    paths: 'rooms'
+  });
 
-  let messages: StoreFirestore<MessageData> | undefined;
+  $: rooms = [...$roomsOrdered || [], ...$roomsUnordered || []];
+
+  const users = createStoreCollection({
+    firestore,
+    converter: userConverter,
+    containtes: [where('id', '!=', user.uid)],
+    paths: 'users'
+  });
+
+  let messages: StoreFirestoreCollection<MessageData> | undefined;
 
   let input = '';
   const sendMessage = async () => {
     if(!input || !messages){
       return
     }
-    messages.add(new MessageData({ text: input }))
+    messages.add(new MessageData({
+      text: input,
+      date: Timestamp.now(),
+      userId: user.uid
+    }))
     textAreaEl.reset();
     messagesEl.scrollTo({
       behavior: 'smooth',
@@ -41,33 +78,77 @@ import Typography from '$components/Typography';
     })
   }
 
-  const onSelectRoom = ({ detail: { id }}: CustomEvent<{id: string}>)=>{
-    messages = create(firestore, messageConverter, 'rooms', id, 'messages')
+  let selectedRoomId: string | undefined;
+  $: selectedRoomId;
+
+  const onSelectRoom = ({ detail: { id }}: CustomEvent<{id: string}>) => selectedRoomId = id;
+
+  $: {
+    if(!selectedRoomId) {
+      selectedRoomId = rooms?.[0]?.id;
+    }
+    if(selectedRoomId){
+      messages = createStoreCollection({
+        firestore,
+        converter: messageConverter,
+        containtes: [orderBy('date', 'desc'), limit(100)],
+        paths: ['rooms', selectedRoomId, 'messages']
+      });
+    }
+  };
+
+  let buttonAvatar: HTMLButtonElement;
+  let openMenu = false;
+  const toogleMenu = ()=>{
+    openMenu= !openMenu;
+  }
+
+  let openProfile = false;
+  const showProfile = ()=>{
+    openProfile= true;
+    openMenu = false;
+  }
+  const closeProfile = ()=>{
+    openProfile= false;
   }
 </script>
 
 <div class="wrapper">
   <header>
     <Logo />
+    <Button
+      variant="icon" bind:el={buttonAvatar}
+      on:click={toogleMenu}
+    >
+      <Avatar username={user.displayName} picture={user.photoURL} />
+    </Button>
+    <Menu open={openMenu} anchor={buttonAvatar}>
+      <MenuItem on:click={showProfile}>Profile</MenuItem>
+      <MenuItem>Logout</MenuItem>
+    </Menu>
+    <Modal open={openProfile} on:click:outside={closeProfile}>
+      <Profile />
+    </Modal>
   </header>
   <nav>
     <NavContainer title="Rooms">
       <List>
-        {#each $rooms as data}
-          <Room {...data} on:select={onSelectRoom} />
+        {#each rooms as data}
+          <ListItemRoom
+            {...data}
+            selected={selectedRoomId === data.id}
+            on:select={onSelectRoom}
+          />
         {/each}
       </List>
     </NavContainer>
-    <List>
-      <Typography
-        tag="h3"
-        --transform='uppercase'
-        --padding="0 0 0 8px"
-      >Users</Typography>
-      {#each $users as data}
-        <User {...data} />
-      {/each}
-    </List>
+    <NavContainer title="Users">
+      <List>
+        {#each $users as data}
+          <ListItemUser {...data} />
+        {/each}
+      </List>
+    </NavContainer>
   </nav>
   {#if $messages}
     <main class="content">
@@ -116,8 +197,11 @@ import Typography from '$components/Typography';
   header {
     grid-area: header;
     background: white;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--palette-divider);
     padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
   nav {
     display: flex;
@@ -125,11 +209,11 @@ import Typography from '$components/Typography';
     gap: 8px;
     grid-area: nav;
     background: white;
-    border-right: 1px solid var(--border-color);
+    border-right: 1px solid var(--palette-divider);
     overflow-y: auto;
 
     & > :global(*:not(:last-child)){
-      border-bottom: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--palette-divider);
     }
   }
 

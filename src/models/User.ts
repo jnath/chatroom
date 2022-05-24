@@ -3,13 +3,13 @@ import type { DocumentData, FirestoreDataConverter } from 'firebase/firestore';
 export class UserData {
 
   public id: string;
-  public name: string;
+  public username: string;
   public picture: string;
 
   public online: boolean;
   constructor(id: string, data: DocumentData){
     this.id = id;
-    this.name = data.name;
+    this.username = data.username;
     this.picture = data.picture;
     this.online = data.online;
   }

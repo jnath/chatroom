@@ -15,11 +15,13 @@
 		"strict": true,
 		"target": "es2020",
 		"paths": {
+      "$system/*": ["src/system/*"],
       "$components/*": ["src/components/*"],
       "$directives/*": ["src/directives/*"],
       "$models/*": ["src/models/*"],
       "$stores/*": ["src/stores/*"],
       "$helpers/*": ["src/helpers/*"],
+      "$theme/*": ["src/theme/*"],
     }
 	}
 }

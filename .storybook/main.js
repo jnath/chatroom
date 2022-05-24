@@ -1,10 +1,12 @@
 const { mergeConfig } = require('vite');
+const sveltePreprocess = require('svelte-preprocess');
 
 module.exports = {
   "stories": [
     "../src/**/*.stories.mdx",
     "../src/**/*.stories.@(js|jsx|ts|tsx|svelte)"
   ],
+  logLevel: 'debug',
   "addons": [
     "@storybook/addon-links",
     "@storybook/addon-essentials",
@@ -15,7 +17,10 @@ module.exports = {
     "builder": "@storybook/builder-vite"
   },
   "svelteOptions": {
-    "preprocess": import("../svelte.config.js").preprocess
+    "preprocess": sveltePreprocess({
+      typescript: true,
+		  postcss: true
+    })
   },
   viteFinal: async (config, { configType }) => {
     // return the customized config
@@ -23,11 +28,13 @@ module.exports = {
       // customize the Vite config here
       resolve: {
         alias: {
+          $system: '/src/system',
           $components: '/src/components',
           $directives: '/src/directives',
           $models: '/src/models',
           $stores: '/src/stores',
           $helpers: '/src/helpers',
+          $theme: '/src/theme',
         },
       },
     });

@@ -12,6 +12,7 @@
 
   import Auth, { type LoginFields, type RegisterFields } from '$components/Auth';
   import Chatroom from '$components/Chatroom';
+  import { getCurrentUser } from '$stores/currentUser';
 
   const { addNotification } = getNotificationsContext();
   type Code = keyof typeof translations;
@@ -23,7 +24,6 @@
     return translation;
   };
 
-  let firebaseApp: FirebaseApp | undefined;
   const firebaseConfig = {
     apiKey: "AIzaSyCr3quQkV-U9ikLg5_KBEzlCrjiH0j3IVs",
     authDomain: "chatroom-64934.firebaseapp.com",
@@ -32,7 +32,8 @@
     messagingSenderId: "10685221809",
     appId: "1:10685221809:web:b76b837d140922a6df8b90"
   };
-  firebaseApp = firebase.initializeApp(firebaseConfig);
+
+  const firebaseApp: FirebaseApp = firebase.initializeApp(firebaseConfig);
 
   const firestoreSettings: FirestoreSettings & { useFetchStreams: boolean } = {
     useFetchStreams: false, /* this might not be doing anything*/
@@ -41,7 +42,11 @@
 
   const firestore = initializeFirestore(firebaseApp, firestoreSettings);
 
-  const { loginWithEmailPassword, logout, user } = initAuth(firebaseApp);
+  const { user, loginWithEmailPassword, registerWithEmailPassword, updateProfile, logout } = initAuth();
+
+  const { currentUser } = getCurrentUser();
+
+  $:console.log($currentUser)
 
   function removeHash () {
     history.pushState("", document.title, window.location.pathname + window.location.search);
@@ -59,10 +64,27 @@
       });
     }
   }
+
+  const registerHandler = async (event: CustomEvent<RegisterFields>) => {
+    const { email, password, username } = event.detail;
+    try {
+      await registerWithEmailPassword(email, password);
+      await updateProfile({
+        displayName: username
+      })
+      removeHash();
+    } catch (err) {
+      addNotification({
+        text: getTranslation((err as AuthError).code as Code),
+        position: 'top-center',
+        type: 'danger'
+      });
+    }
+  }
 </script>
 
 {#if $user}
-  <Chatroom {firestore} />
+  <Chatroom user={$user} {firestore} />
 {:else}
-  <Auth on:send:login={loginHandler} />
+  <Auth on:send:login={loginHandler} on:send:register={registerHandler}/>
 {/if}

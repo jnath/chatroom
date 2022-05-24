@@ -1,14 +1,14 @@
 <script lang="ts">
-  import Typography from '$components/Typography';
+  import Typography from '$system/Typography';
 
   export let title: string;
 </script>
 
 <div>
   <Typography
-    tag='h3'
-    --transform='uppercase'
-    --padding="0 0 0 8px"
+    variant="subtitle2"
+    --paddingLeft="16px"
+    --transform="uppercase"
   >
     {title}
   </Typography>
