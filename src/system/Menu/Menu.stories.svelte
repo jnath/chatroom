@@ -4,7 +4,7 @@
   import MenuItem from "./MenuItem.svelte";
   import ListItemText from '$system/List/ListItemText.svelte';
   import ListItemIcon from '$system/List/ListItemIcon.svelte';
-  import Icon from 'fa-svelte/src/Icon.svelte';
+  import Icon from 'svelte-fa';
 	import { faCat } from '@fortawesome/free-solid-svg-icons';
   import Button from '$system/Button';
 

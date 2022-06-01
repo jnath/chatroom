@@ -7,15 +7,15 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
 
-  import Header from '../components/Header.svelte';
-  import Form from '../components/Form.svelte';
-  import Email from '../components/Email.svelte';
-  import Password from '../components/Password.svelte';
-  import Button from '$system/Button/Button.svelte';
+  import Form from '$system/Form';
+  import Button from '$system/Button';
+  import Typography from '$system/Typography';
+
+  import Email from '$components/Inputs/Email.svelte';
+  import Password from '$components/Inputs/Password.svelte';
 
   let emailValue:string;
   let passwordValue: string;
-
 
   const dispatch = createEventDispatcher();
 
@@ -28,10 +28,10 @@
 
 </script>
 
-<Header>Login</Header>
+<Typography variant="headline6" gutterBottom >Login</Typography>
 <Form let:valid >
-  <Email bind:value={emailValue} name="email"/>
-  <Password bind:value={passwordValue} name="password" />
+  <Email bind:value={emailValue} name="email" required/>
+  <Password bind:value={passwordValue} name="password" required/>
 
   <Button
     variant="container"

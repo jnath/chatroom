@@ -1,12 +1,10 @@
 <script lang="ts">
-  import { Hint, required } from 'svelte-use-form';
-
-  import Input from './Input.svelte';
-
-  import { passwordValid } from '../validators/password';
+  import Input, { passwordValid, Hint } from '$system/Input';
 
   export let value: string;
   export let name: string;
+
+  export let required = false;
 </script>
 
 <Input
@@ -15,10 +13,10 @@
   {name}
   placeholder="Password"
   autocomplete="new-password"
-  validators={[required, passwordValid]}
+  {required}
+  validators={[passwordValid]}
 >
   <svelte:fragment slot='hints'>
-    <Hint on="required">This is a mandatory field</Hint>
     <Hint on="passwordValid" hideWhenRequired>Passwords must containe min 8 char, Uppercase, Lowercase, 2 digit, and no space</Hint>
   </svelte:fragment>
 </Input>

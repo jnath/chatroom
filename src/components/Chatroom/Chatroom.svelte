@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { type Firestore, Timestamp } from 'firebase/firestore';
   import type { User } from 'firebase/auth';
+  import { type Firestore, Timestamp } from 'firebase/firestore';
 
   import {
     type StoreFirestoreCollection,
@@ -13,7 +13,7 @@
   import scrollBottom from '$directives/scrollBottom'
 
   import { roomConverter } from '$models/Room';
-  import { userConverter } from '$models/User';
+  import { userConverter, UserData } from '$models/User';
   import { messageConverter, MessageData } from '$models/Message';
 
   import List from '$system/List/List.svelte';
@@ -31,8 +31,13 @@
   import ListItemUser from '$components/ListItemUser.svelte';
   import Profile from '$components/Profile';
 
+  import { getStoredUser } from '$stores/currentUser';
+
   export let firestore: Firestore;
   export let user: User;
+  export let logout: ()=>void;
+
+  $:storedUser = getStoredUser(user);
 
   let messagesEl: HTMLElement;
   let textAreaEl: TextArea;
@@ -43,6 +48,7 @@
     containtes: [where('order', '>=', 0), orderBy('order', 'asc')],
     paths: 'rooms'
   });
+
   const roomsUnordered = createStoreCollection({
     firestore,
     converter: roomConverter,
@@ -52,10 +58,10 @@
 
   $: rooms = [...$roomsOrdered || [], ...$roomsUnordered || []];
 
-  const users = createStoreCollection({
+  $: users = $storedUser && createStoreCollection({
     firestore,
     converter: userConverter,
-    containtes: [where('id', '!=', user.uid)],
+    containtes: [where('id', '!=', $storedUser.id)],
     paths: 'users'
   });
 
@@ -69,7 +75,7 @@
     messages.add(new MessageData({
       text: input,
       date: Timestamp.now(),
-      userId: user.uid
+      userId: $storedUser.id
     }))
     textAreaEl.reset();
     messagesEl.scrollTo({
@@ -113,61 +119,65 @@
   }
 </script>
 
-<div class="wrapper">
-  <header>
-    <Logo />
-    <Button
-      variant="icon" bind:el={buttonAvatar}
-      on:click={toogleMenu}
-    >
-      <Avatar username={user.displayName} picture={user.photoURL} />
-    </Button>
-    <Menu open={openMenu} anchor={buttonAvatar}>
-      <MenuItem on:click={showProfile}>Profile</MenuItem>
-      <MenuItem>Logout</MenuItem>
-    </Menu>
-    <Modal open={openProfile} on:click:outside={closeProfile}>
-      <Profile />
-    </Modal>
-  </header>
-  <nav>
-    <NavContainer title="Rooms">
-      <List>
-        {#each rooms as data}
-          <ListItemRoom
-            {...data}
-            selected={selectedRoomId === data.id}
-            on:select={onSelectRoom}
-          />
-        {/each}
-      </List>
-    </NavContainer>
-    <NavContainer title="Users">
-      <List>
-        {#each $users as data}
-          <ListItemUser {...data} />
-        {/each}
-      </List>
-    </NavContainer>
-  </nav>
-  {#if $messages}
-    <main class="content">
+{#if $storedUser}
+  <div class="wrapper">
+    <header>
+      <Logo />
+      <Button
+        variant="icon" bind:el={buttonAvatar}
+        on:click={toogleMenu}
+      >
+        <Avatar username={$storedUser.username} picture={$storedUser.picture} />
+      </Button>
+      <Menu open={openMenu} anchor={buttonAvatar}>
+        <MenuItem on:click={showProfile}>Profile</MenuItem>
+        <MenuItem on:click={logout}>Logout</MenuItem>
+      </Menu>
+      <Modal open={openProfile} on:close={closeProfile}>
+        <Profile on:close={closeProfile} {storedUser}  />
+      </Modal>
+    </header>
+    <nav>
+      <NavContainer title="Rooms">
+        <List>
+          {#each rooms as data}
+            <ListItemRoom
+              {...data}
+              selected={selectedRoomId === data.id}
+              on:select={onSelectRoom}
+            />
+          {/each}
+        </List>
+      </NavContainer>
+      <NavContainer title="Users">
+        <List>
+          {#each $users as data}
+            <ListItemUser {...data} />
+          {/each}
+        </List>
+      </NavContainer>
+    </nav>
+    {#if $messages}
+      <main class="content">
 
-      <div id="messages" use:scrollBottom bind:this={messagesEl}>
-        {#each $messages as message}
-          <Message {...message} />
-        {/each}
-      </div>
-      <TextArea
-        bind:this={textAreaEl}
-        bind:value={input}
-        on:send={sendMessage}
-        />
-      </main>
-    {/if}
-  <aside></aside>
-  <footer></footer>
-</div>
+        <div id="messages" use:scrollBottom bind:this={messagesEl}>
+          {#each $messages as message}
+            <Message {...message} />
+          {/each}
+        </div>
+        <TextArea
+          bind:this={textAreaEl}
+          bind:value={input}
+          on:send={sendMessage}
+          />
+        </main>
+      {/if}
+    <aside></aside>
+    <footer></footer>
+  </div>
+{:else}
+  Loading
+{/if}
 
 <style lang="postcss">
   :root{

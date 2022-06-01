@@ -5,8 +5,6 @@
   // export let name = '';
   export let withTabs = true;
   export let emojis: EmojiData[];
-
-  console.log(emojis)
 </script>
 
 

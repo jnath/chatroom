@@ -6,8 +6,8 @@
   import ListItemText from '$system/List/ListItemText.svelte';
   import ListItemIcon from '$system/List/ListItemIcon.svelte';
 
-  import Icon from 'fa-svelte/src/Icon.svelte';
-	import { faCat, faCoffee, faFutbol, faHistory, faMusic } from '@fortawesome/free-solid-svg-icons';
+  import Icon from 'svelte-fa';
+	import { faCat } from '@fortawesome/free-solid-svg-icons';
 
 </script>
 

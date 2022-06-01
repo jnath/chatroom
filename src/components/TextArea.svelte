@@ -1,7 +1,8 @@
 <script lang="ts">
-  import MdSend from 'svelte-icons/md/MdSend.svelte'
-
   import EmojiSelector from './EmojiSelector';
+
+  import Icon from 'svelte-fa';
+	import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 
   import { createEventDispatcher } from 'svelte';
   import Button from '$system/Button';
@@ -38,12 +39,14 @@
   />
   <EmojiSelector on:emoji={onEmoji}  />
   <Button
+    variant="icon"
+    style='primary'
     on:click={send}
-    --width='25px'
-    --color='var(--palette-primary-main)'
-    --padding='4px 0 0 0'
   >
-    <MdSend />
+    <Icon
+      size="lg"
+      icon={faPaperPlane}
+    />
   </Button>
 </div>
 

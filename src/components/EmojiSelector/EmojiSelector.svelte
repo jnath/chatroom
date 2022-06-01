@@ -11,11 +11,12 @@
 		type IconDefinition
 	} from '@fortawesome/free-regular-svg-icons';
 	import { faCat, faCoffee, faFutbol, faHistory, faMusic } from '@fortawesome/free-solid-svg-icons';
-	import Icon from 'fa-svelte/src/Icon.svelte';
-	import { createPopperActions } from '../../directives/popper';
+	import Icon from 'svelte-fa';
 
-	import clickOutside from '../../directives/clickOutside';
 	import { Tabs, Tab, TabList, TabPanel } from 'svelte-tabs';
+
+	import Button from '$system/Button';
+	import Popper from '$system/Popper';
 
 	import EmojiDetail from './EmojiDetail.svelte';
 	import EmojiList from './EmojiList.svelte';
@@ -40,7 +41,6 @@
 
 	onMount(() => {
 		recentEmojis = JSON.parse(localStorage?.getItem('svelte-emoji-picker-recent') || '[]') || [];
-		// togglePicker();
 	});
 
 	const dispatch = createEventDispatcher();
@@ -136,70 +136,69 @@
 		});
 	}
 
-	const [popperRef, popperContent] = createPopperActions({
-		placement: 'auto-end'
-		// strategy: 'fixed',
-	});
-	const extraOpts = {
-		modifiers: [{ name: 'offset', options: { offset: [20, 0] } }]
-	};
+	let buttonRef: Button;
+	$: anchor = buttonRef?.$$?.ctx?.[0];
 </script>
 
 <svelte:body on:keydown={onKeyDown} />
-<button on:click={togglePicker} use:popperRef>
-	<Icon icon={smileIcon} />
-</button>
+<Button
+	bind:this={buttonRef}
+	variant="icon"
+	on:click={togglePicker}
+>
+	<Icon size="lg" icon={smileIcon} />
+</Button>
 
 {#if pickerVisible}
-	<div
-		class="svelte-emoji-picker"
-		use:popperContent={extraOpts}
-		use:clickOutside={hidePicker}
-	>
-		<EmojiSearch bind:searchText />
-		{#if searchText}
-			<EmojiSearchResults
-				{searchText}
-				on:emojihover={showEmojiDetails}
-				on:emojiclick={onEmojiClick}
-			/>
-		{:else}
-			<div class="svelte-emoji-picker__emoji-tabs">
-				<Tabs initialSelectedIndex={1}>
-					<TabList>
-						<Tab><Icon icon={faHistory} /></Tab>
-						{#each categoryOrder as category}
-							<Tab><Icon icon={categoryIcons[category]} /></Tab>
-						{/each}
-					</TabList>
+	<Popper {anchor} options={{ placement:"top-end" }}>
+		<div
+			class="svelte-emoji-picker"
+		>
+			<EmojiSearch bind:searchText />
+			{#if searchText}
+				<EmojiSearchResults
+					{searchText}
+					on:emojihover={showEmojiDetails}
+					on:emojiclick={onEmojiClick}
+				/>
+			{:else}
+				<div class="svelte-emoji-picker__emoji-tabs">
+					<Tabs initialSelectedIndex={1}>
+						<TabList>
+							<Tab><Icon icon={faHistory} /></Tab>
+							{#each categoryOrder as category}
+								<Tab><Icon icon={categoryIcons[category]} /></Tab>
+							{/each}
+						</TabList>
 
-					<TabPanel>
-						<EmojiList
-							emojis={recentEmojis}
-							on:emojihover={showEmojiDetails}
-							on:emojiclick={onEmojiClick}
-						/>
-					</TabPanel>
-
-					{#each categoryOrder as category}
 						<TabPanel>
 							<EmojiList
-								emojis={emojiCategories[category]}
+								emojis={recentEmojis}
 								on:emojihover={showEmojiDetails}
 								on:emojiclick={onEmojiClick}
 							/>
 						</TabPanel>
-					{/each}
-				</Tabs>
-			</div>
-		{/if}
 
-		{#if variantsVisible}
-			<VariantPopup {variants} on:emojiclick={onVariantClick} on:close={hideVariants} />
-		{/if}
+						{#each categoryOrder as category}
+							<TabPanel>
+								<EmojiList
+									emojis={emojiCategories[category]}
+									on:emojihover={showEmojiDetails}
+									on:emojiclick={onEmojiClick}
+								/>
+							</TabPanel>
+						{/each}
+					</Tabs>
+				</div>
+			{/if}
 
-		<EmojiDetail emoji={currentEmoji} />
-	</div>
+			{#if variantsVisible}
+				<VariantPopup {variants} on:emojiclick={onVariantClick} on:close={hideVariants} />
+			{/if}
+
+			<EmojiDetail emoji={currentEmoji} />
+		</div>
+	</Popper>
 {/if}
 
 <style lang="postcss">

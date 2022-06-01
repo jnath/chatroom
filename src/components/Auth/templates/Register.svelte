@@ -8,13 +8,14 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
 
-  import Email from '../components/Email.svelte';
-  import Header from '../components/Header.svelte';
-  import Form from '../components/Form.svelte';
-  import Button from '$system/Button/Button.svelte';
-  import Password from '../components/Password.svelte';
-  import ConfirmPassword from '../components/ConfirmPassword.svelte';
-  import Text from '../components/Text.svelte';
+  import Form from '$system/Form';
+  import Button from '$system/Button';
+  import Typography from '$system/Typography';
+
+  import Email from '$components/Inputs/Email.svelte';
+  import Password from '$components/Inputs/Password.svelte';
+  import ConfirmPassword from '$components/Inputs/ConfirmPassword.svelte';
+  import Username from '$components/Inputs/Username.svelte';
 
   let emailValue:string;
   let passwordValue: string;
@@ -32,21 +33,14 @@
 
 </script>
 
-<Header>Register</Header>
+<Typography variant="headline6" gutterBottom >Register</Typography>
 <Form let:valid>
 
-  <Email bind:value={emailValue} name="email"/>
-  <Password bind:value={passwordValue} name="password" />
-  <ConfirmPassword name="password2" />
+  <Email bind:value={emailValue} name="email" required />
+  <Password bind:value={passwordValue} name="password" required />
+  <ConfirmPassword name="password2" required />
 
-  <Text
-    bind:value={usernameValue}
-    name="username"
-    placeholder="Username"
-    autocomplete="nickname"
-    required
-    minLength={3}
-  />
+  <Username bind:value={usernameValue} name="username" required />
 
   <Button variant="container" on:click={send} disabled={!valid}>Registration</Button>
 </Form>

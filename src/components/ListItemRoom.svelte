@@ -15,8 +15,8 @@
 </script>
 
 <ListItemButton
-  --padding="0 16px 0 16px"
   {selected}
+  dense
   on:click={onClick}
 >
   <ListItemText>

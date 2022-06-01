@@ -19,18 +19,20 @@ export const initAuth = (useRedirect = false) => {
   const registerWithEmailPassword = (email: string, password: string) =>
     createUserWithEmailAndPassword(auth, email, password);
 
-  const logout = () => auth && auth.signOut();
-
   let firebaseUser: User | null = null;
   // wrap Firebase user in a Svelte readable store
   const user = readable<User | null>(null, set => {
-    const unsub = auth.onAuthStateChanged(async authUser => {
+    return auth.onAuthStateChanged(async authUser => {
       firebaseUser = authUser;
       set(firebaseUser);
     });
-
-    return unsub;
   });
+
+  const logout = async () => {
+    if(auth) {
+      await auth.signOut();
+    }
+  };
 
   return {
     user,

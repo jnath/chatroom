@@ -30,7 +30,7 @@
 
     text-align: center;
 
-    width: var(--width, max-contents);
+    width: var(--width, max-content);
     overflow: visible;
 
     background: var(--background, transparent);

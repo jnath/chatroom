@@ -1,21 +1,30 @@
+<script lang="ts" context="module">
+	const modals = new Set();
+</script>
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import portal from '$system/actions/portal';
   import Backdrop from '$system/Modal/Backdrop.svelte';
+  import { get_current_component } from 'svelte/internal';
 
   export let open = false;
+
+  let size = 0;
 
   const dispatch = createEventDispatcher();
 
   const clickBackdropHandler = () => {
     dispatch('close');
   }
+  const self = get_current_component();
 
   $: {
     // const wrapper = document.querySelector<HTMLDivElement>('body > div');
     if(open){
       document.body.style.paddingRight = '15px';
       document.body.style.overflow = 'hidden';
+      modals.add(self)
+      size = modals.size;
       // if(wrapper){
       //   wrapper.style.backdropFilter = 'blur(4px)';
       //   backdrop-filter: blur(10px) brightness(60%);
@@ -23,28 +32,32 @@
     } else {
       document.body.style.paddingRight = '';
       document.body.style.overflow = '';
+      modals.delete(self)
       // if(wrapper){
       //   wrapper.style.filter = '';
       // }
     }
   }
+  $: console.log(size);
 </script>
 
 <div
-  role="modal"
+  role="presentation"
   class:open
   use:portal
+  style:z-index={size}
 >
   <Backdrop
     on:click={clickBackdropHandler}
+    opacity={size > 1 ? 0 : 1}
   />
-  <div role="modal-content">
+  <div role="main">
     <slot />
   </div>
 </div>
 
 <style lang="postcss">
-  div[role="modal"] {
+  div[role="presentation"] {
     display: none;
     position: fixed;
     box-sizing: border-box;
@@ -67,7 +80,7 @@
     transform-origin-right: top right;
     /* backdrop-filter: blur(4px); */
 
-    & div[role="modal-content"] {
+    & div[role="main"] {
       top: 50vh;
       position: fixed;
       left: 50vw;

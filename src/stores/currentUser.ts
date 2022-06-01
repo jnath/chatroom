@@ -1,37 +1,54 @@
+
+import { getAuth, updateProfile , type User } from 'firebase/auth'
+import type { Readable } from 'svelte/store'
+
 import { userConverter, UserData } from '$models/User'
 import { createStoreDoc, type StoreFirestoreDocument } from '$stores/firestore'
-import { getAuth } from 'firebase/auth'
 import { getFirestore } from "firebase/firestore";
 
-export const getCurrentUser = ()=>{
-  const auth = getAuth();
+export type StoredUser = Readable<UserData> & {
+  updateProfile: (data: {
+    displayName?: string | null;
+    photoURL?: string | null;
+  }) => Promise<void>
+}
+
+export const getStoredUser = (user: User): StoredUser =>{
   const firestore = getFirestore();
-  let currentUser: StoreFirestoreDocument<UserData> | undefined;
+  const {subscribe, set, update}: StoreFirestoreDocument<UserData> = createStoreDoc({
+    firestore,
+    converter: userConverter,
+    paths: ['users', user.uid]
+  })
 
-  const unsub = auth.onAuthStateChanged(async user => {
-    if (user) {
-      currentUser = createStoreDoc({
-        firestore,
-        converter: userConverter,
-        paths: ['users', user.uid]
-      })
+  let firebaseAuthUser:User | null = null;
 
-      currentUser.set(new UserData(user.uid, {
-        username: user.displayName,
-        picture: user.photoURL,
+  const auth = getAuth();
+  auth.onAuthStateChanged(async authUser => {
+    if(authUser){
+      firebaseAuthUser = authUser;
+      await set(new UserData(firebaseAuthUser.uid, {
+        username: firebaseAuthUser.displayName,
+        picture: firebaseAuthUser.photoURL,
         online: true
       }))
-
-      console.log(user, auth.currentUser);
-    } else {
-      currentUser?.update({ online: false })
+    }else{
+      firebaseAuthUser = null;
+      await update({online: false});
     }
   });
 
   return {
-    currentUser,
-    unsubscrib: () => {
-      unsub();
+    subscribe,
+    async updateProfile(data){
+      if(!firebaseAuthUser){
+        return;
+      }
+      await updateProfile(firebaseAuthUser, data);
+      await update({
+        username: firebaseAuthUser.displayName || undefined,
+        picture: firebaseAuthUser.photoURL || undefined
+      });
     }
-  }
+  };
 }

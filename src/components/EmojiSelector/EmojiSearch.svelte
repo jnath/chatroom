@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
-  import Icon from 'fa-svelte';
+  import Icon from 'svelte-fa';
   export let searchText = '';
   let searchField: HTMLInputElement;
   onMount(() => {

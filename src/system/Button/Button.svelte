@@ -1,11 +1,13 @@
 <script lang="ts" context="module">
   export type Variant = 'container' | 'outlined' | 'text' | 'icon';
-  export type Style = 'primary' | 'secondary';
+  export type Style = 'primary' | 'secondary' | 'none';
 </script>
 
 <script lang="ts">
   export let variant: Variant = 'container';
-  export let style: Style = 'primary';
+  export let style: Style = 'none';
+
+  $: style = ( variant === 'container' || variant === "outlined" ) && style === "none" ? 'primary' : style;
 
   export let el: HTMLButtonElement | undefined = undefined;
 </script>
@@ -30,11 +32,11 @@
   * {
     margin: 0;
     outline: 0;
-    padding: var(--padding, 6px 16px);
+    padding: 6px 16px;
 
     text-align: center;
 
-    width: var(--width, max-contents);
+    width: max-content;
     overflow: visible;
 
     background: var(--background, transparent);
@@ -58,13 +60,6 @@
     gap: 16px;
     justify-content: center;
     box-sizing: border-box;
-
-    /* font-family: var(--button-fontFamily, inherit);
-    font-weight: var(--button-fontWeight, inherit);
-    font-size: var(--button-fontSize, inherit);
-    line-height: var(--button-lineHeight, inherit);
-    letter-spacing: var(--button-letterSpacing, inherit);;
-    text-transform: var(--button-textTransform, none);; */
 
     @mixin font button;
 
@@ -102,10 +97,12 @@
     transition: border 0.25s ease;
     padding: 5px 16px;
     &.primary {
+      --color: var(--palette-primary-main);
       --border: 1px solid var(--palette-primary-main);
       --borderHover: 1px solid var(--palette-primary-dark);
     }
     &.secondary {
+      --color: var(--palette-secondary-main);
       --border: 1px solid var(--palette-secondary-main);
       --borderHover: 1px solid var(--palette-secondary-dark);
     }
@@ -121,14 +118,28 @@
   *.text {
     transition: color 0.25s ease;
 
+    &.primary {
+      --color: var(--palette-primary-main);
+    }
+
+    &.secondary {
+      --color: var(--palette-secondary-main);
+    }
     &:disabled {
       --color: var(--action-disabled)
     }
   }
   *.icon {
     transition: opacity 0.25s ease;
-    padding: var(--padding, 0);
+    padding: 8px;
 
+    &.primary {
+      --color: var(--palette-primary-main);
+    }
+
+    &.secondary {
+      --color: var(--palette-secondary-main);
+    }
     &:hover {
       opacity: var(--action-selectedOpacity);
     }

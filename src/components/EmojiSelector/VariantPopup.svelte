@@ -3,7 +3,7 @@
 
 	import { createEventDispatcher } from 'svelte';
   import { faTimes } from '@fortawesome/free-solid-svg-icons';
-  import Icon from 'fa-svelte';
+  import Icon from 'svelte-fa';
   import Emoji from './Emoji.svelte';
 
   export let variants: Record<string, EmojiData>;

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
   import { faFrown } from '@fortawesome/free-regular-svg-icons';
-  import Icon from 'fa-svelte';
+  import Icon from 'svelte-fa';
   import EmojiList from './EmojiList.svelte';
   import { default as emojiData, type EmojiData} from './data';
   export let searchText = '';

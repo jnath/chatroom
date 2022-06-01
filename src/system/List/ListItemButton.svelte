@@ -2,17 +2,20 @@
   import type { SvelteComponent } from 'svelte/internal';
 
   export type Component = 'div' | SvelteComponent;
+  export type Padding = Record<'left' | 'right' | 'top' | 'bottom', number>;
 </script>
 
 <script lang="ts">
   export let component: Component = 'div';
   export let selected = false;
+  export let dense = false;
 </script>
 
 {#if typeof component === 'string'}
   <svelte:element
     on:click
     class:selected
+    class:dense
     this={component}
     >
     <slot />
@@ -22,6 +25,7 @@
     on:click
     this={component}
     {selected}
+    {dense}
     >
     <slot />
   </svelte:component>
@@ -48,7 +52,7 @@
     box-sizing: border-box;
     text-align: left;
     transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
-    padding: var(--padding, 8px 16px 8px 16px);
+    padding: 8px 16px 8px 16px;
 
     &:hover {
       text-decoration: none;
@@ -58,6 +62,10 @@
     &.selected {
       background-color: var(--palette-primary-main);
       color: var(--palette-primary-contrast);
+    }
+
+    &.dense {
+      padding: 0 16px 0 16px;
     }
   }
 </style>

@@ -11,7 +11,8 @@
 <style lang="postcss">
   form {
     display: flex;
-    flex-direction: column;
+    flex-direction: var(--form-flex-direction, column);
     position: relative;
+    gap: 16px;
   }
 </style>

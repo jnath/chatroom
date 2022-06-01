@@ -1,0 +1,34 @@
+<script lang="ts">
+  import Input, {
+    Hint,
+    maxLength as maxLengthValidator,
+    minLength as minLengthValidator
+  } from '$system/Input';
+
+  export let value: string;
+  export let name: string;
+
+  export let required = false;
+
+  const placeholder = "Username";
+  const maxLength = 20;
+  const minLength = 3;
+
+</script>
+<Input
+  bind:value={value}
+  type="text"
+  {name}
+  autocomplete="nickname"
+  {placeholder}
+  {required}
+  validators={[
+    maxLengthValidator(maxLength),
+    minLengthValidator(minLength)
+  ]}
+>
+  <svelte:fragment slot="hints">
+    <Hint on="maxLength" hideWhenRequired let:value>{placeholder} requires at max {maxLength} characters.</Hint>
+    <Hint on="minLength" hideWhenRequired let:value>{placeholder} requires at least {minLength} characters.</Hint>
+  </svelte:fragment>
+</Input>

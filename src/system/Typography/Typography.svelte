@@ -19,6 +19,8 @@
 
   export let variant: Variant | 'inherit' = 'inherit';
 
+  export let gutterBottom = false;
+
   const variantMapping: Record<string, string> = {
     headline1: 'h1',
     headline2: 'h2',
@@ -37,6 +39,7 @@
 <svelte:element
   this={variantMapping[variant] || variantMapping.inherit}
   class={variant}
+  class:gutterBottom
   {...$$restProps}
 >
   <slot />
@@ -48,9 +51,12 @@
   * {
     font-family: var(--fontFamily);
     text-transform: var(--transform);
-    padding: 0 0 0 var(--paddingLeft, 0);
-    margin: var(--margin, 0);
     flex: var(--flex);
+    margin: 0;
+
+    &.gutterBottom {
+      margin: 0px 0px 0.35em;
+    }
   }
 
   *.headline1 {
