@@ -12,6 +12,7 @@
   type="email"
   {name}
   {required}
+  label="Email"
   placeholder="Email"
   autocomplete="username"
   validators={[email]}

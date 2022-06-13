@@ -11,10 +11,12 @@
   bind:value={value}
   type="password"
   {name}
+  label="Password"
   placeholder="Password"
   autocomplete="new-password"
   {required}
   validators={[passwordValid]}
+  {...$$restProps}
 >
   <svelte:fragment slot='hints'>
     <Hint on="passwordValid" hideWhenRequired>Passwords must containe min 8 char, Uppercase, Lowercase, 2 digit, and no space</Hint>

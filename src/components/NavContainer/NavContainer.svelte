@@ -6,9 +6,9 @@
 
 <div>
   <Typography
-    variant="subtitle2"
-    --paddingLeft="16px"
-    --transform="uppercase"
+    variant="body2"
+    bold
+    style="padding-left:16px;"
   >
     {title}
   </Typography>
@@ -19,6 +19,6 @@
   div {
     display: flex;
     flex-direction: column;
-    padding: 8px 0 16px 0;
+    /* padding: 16px 0; */
   }
 </style>

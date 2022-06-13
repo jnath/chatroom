@@ -59,6 +59,9 @@ const config = {
 	kit: {
 		adapter: adapter(),
 		vite: {
+      server: {
+        host: '0.0.0.0'
+      },
       resolve: {
         alias: {
           $components: path.resolve('./src/components'),

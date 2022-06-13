@@ -24,22 +24,23 @@
 
   let files: FileList | undefined = undefined;
 
-  export let storedUser: StoredUser;
+  export let currentUser: StoredUser;
   const storage = getStorage();
-  $: avatarRef = $storedUser && ref(storage, `users/${$storedUser.id}/avatar.png`);
+  $: avatarRef = $currentUser && ref(storage, `users/${$currentUser.id}/avatar.png`);
 
   $: file = files?.[0];
   $: openAvatarEditor = !!file;
   let dataUrl = '';
 
   const onSave = async ()=>{
+    if(!avatarRef){
+      return;
+    }
     // updateProfile()
-    console.log(dataUrl)
     const snapshot = await uploadString(avatarRef, dataUrl, 'data_url', {contentType: 'image/png'});
-    console.log(snapshot)
     const downloadURL = await getDownloadURL(snapshot.ref);
 
-    await storedUser.updateProfile({
+    await currentUser.updateProfile({
       photoURL: downloadURL
     })
 
@@ -57,11 +58,12 @@
   }
 
   let emailValue:string;
+  let oldPasswordValue: string;
   let passwordValue: string;
   let usernameValue: string;
 
   const saveNewEmail = () => {
-    return
+    currentUser.updateEmail(emailValue);
   }
 
   const saveNewPassword = () => {
@@ -69,8 +71,12 @@
   }
 
   const saveNewUsername = () => {
-    return
+    currentUser.updateProfile({
+      displayName: usernameValue
+    });
   }
+
+  let openChangePassword = false;
 </script>
 
 <Paper elevation={2} >
@@ -82,54 +88,88 @@
     style:width="75vw"
     style:height="75vh"
   >
-    <div class="Avatar">
-      <AvatarUploader
-        username={$storedUser.username}
-        picture={$storedUser.picture}
-        bind:files
-      />
-      <Modal open={openAvatarEditor} on:close={closeAvatarEditor}>
-        <Paper elevation={3} >
-          <div
-            style:margin="16px"
-          >
-            <AvatarEditor bind:dataUrl image={file} />
+    {#if $currentUser}
+      <div class="Avatar">
+        <AvatarUploader
+          username={$currentUser.username}
+          picture={$currentUser.picture}
+          bind:files
+        />
+        <Modal open={openAvatarEditor} on:close={closeAvatarEditor}>
+          <Paper elevation={3} >
             <div
-              style:display="flex"
-              style:gap="8px"
-              style:justify-content="flex-end"
+              style:margin="16px"
             >
-              <Button on:click={closeAvatarEditor}>Annuler</Button>
-              <Button on:click={onSave}>Save</Button>
+              <AvatarEditor bind:dataUrl image={file} />
+              <div
+                style:display="flex"
+                style:gap="8px"
+                style:justify-content="flex-end"
+              >
+                <Button on:click={closeAvatarEditor}>Annuler</Button>
+                <Button on:click={onSave}>Save</Button>
+              </div>
             </div>
-          </div>
-        </Paper>
-      </Modal>
-    </div>
-    <div class="Infos">
-      <Typography variant="headline5">Informations personelle</Typography>
-      <Form let:valid>
-        <Email bind:value={emailValue} name="email" required/>
-        {#if valid}
-          <Button variant="container" on:click={saveNewEmail} disabled={!valid}>save</Button>
-        {/if}
-      </Form>
-      <Divider />
-      <Form let:valid>
-        <Password bind:value={passwordValue} name="password" required/>
-        <ConfirmPassword name="password2" required />
-        {#if valid}
-          <Button variant="container" on:click={saveNewPassword} disabled={!valid}>save</Button>
-        {/if}
-      </Form>
-      <Divider />
-      <Form let:valid>
-        <Username bind:value={usernameValue} name="username" />
-        {#if valid}
-          <Button variant="container" on:click={saveNewUsername} disabled={!valid}>save</Button>
-        {/if}
-      </Form>
-    </div>
+          </Paper>
+        </Modal>
+      </div>
+      <div class="Infos">
+        <Typography variant="headline5">Informations personelle</Typography>
+        <Form let:valid>
+          <Email bind:value={emailValue} placeholder={$currentUser.email} name="email" required/>
+          {#if valid}
+            <Button variant="container" on:click={saveNewEmail} disabled={!valid}>save</Button>
+          {/if}
+        </Form>
+        <Divider />
+        <Form let:valid>
+          <Username bind:value={usernameValue} placeholder={$currentUser.username} name="username" />
+          {#if valid}
+            <Button variant="container" on:click={saveNewUsername} disabled={!valid}>save</Button>
+          {/if}
+        </Form>
+        <Divider />
+        <Button on:click={()=>openChangePassword = true}>Change password</Button>
+        <Modal open={openChangePassword} on:close={()=>openChangePassword = false}>
+          <Paper elevation={3}>
+            <div
+              style:margin="16px"
+            >
+              <Form let:valid>
+                <Password
+                  bind:value={oldPasswordValue}
+                  label="Old password"
+                  placeholder="Old password"
+                  name="old-password"
+                  required
+                />
+                <Password
+                  bind:value={passwordValue}
+                  label="New password"
+                  placeholder="New password"
+                  name="password"
+                  required
+                />
+                <ConfirmPassword
+                  label="Confirme new password"
+                  placeholder="Confirme new password"
+                  name="password2"
+                  required
+                />
+                <div
+                  style:display="flex"
+                  style:gap="8px"
+                  style:justify-content="flex-end"
+                >
+                  <Button on:click={closeAvatarEditor}>Annuler</Button>
+                  <Button variant="container" on:click={saveNewPassword} disabled={!valid}>save</Button>
+                </div>
+              </Form>
+            </div>
+          </Paper>
+        </Modal>
+      </div>
+    {/if}
   </main>
 </Paper>
 
@@ -152,6 +192,7 @@
     & .Avatar {
       flex: 0;
       height: max-content;
+
     }
     & .Infos {
       flex:1;

@@ -1,6 +1,7 @@
 body {
   font-family: var(--fontFamily);
   font-size: 100%;
+  color: var(--palette-text-primary);
 }
 
 ::-webkit-scrollbar {

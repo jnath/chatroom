@@ -1,54 +1,96 @@
 
-import { getAuth, updateProfile , type User } from 'firebase/auth'
-import type { Readable } from 'svelte/store'
+import { getAuth, updateEmail, updateProfile , type User } from 'firebase/auth'
+import { derived, get, writable, type Readable } from 'svelte/store'
 
 import { userConverter, UserData } from '$models/User'
 import { createStoreDoc, type StoreFirestoreDocument } from '$stores/firestore'
-import { getFirestore } from "firebase/firestore";
+import { DocumentReference, getFirestore } from "firebase/firestore";
 
-export type StoredUser = Readable<UserData> & {
+type MergedUser = {
+  id: string;
+  username: string,
+  picture: string,
+  online: boolean,
+  email: string | null
+} | null;
+
+export type StoredUser = Readable<MergedUser> & {
   updateProfile: (data: {
     displayName?: string | null;
     photoURL?: string | null;
-  }) => Promise<void>
+  }) => Promise<void>,
+  updateEmail: (newEmail: string) => Promise<void>,
+  getRef(): DocumentReference<UserData>
 }
 
-export const getStoredUser = (user: User): StoredUser =>{
+
+export const getCurrentUser = (): StoredUser =>{
+
   const firestore = getFirestore();
-  const {subscribe, set, update}: StoreFirestoreDocument<UserData> = createStoreDoc({
+  const auth = getAuth();
+  const user = auth.currentUser;
+  if(!user){
+    throw new Error('Not Auth');
+  }
+
+  const firestoreUser: StoreFirestoreDocument<UserData> = createStoreDoc({
     firestore,
     converter: userConverter,
     paths: ['users', user.uid]
   })
 
-  let firebaseAuthUser:User | null = null;
+  const firebaseAuthUser = writable<User | null>(user);
 
-  const auth = getAuth();
   auth.onAuthStateChanged(async authUser => {
-    if(authUser){
-      firebaseAuthUser = authUser;
-      await set(new UserData(firebaseAuthUser.uid, {
-        username: firebaseAuthUser.displayName,
-        picture: firebaseAuthUser.photoURL,
+    if (authUser) {
+      firebaseAuthUser.set(authUser);
+      await firestoreUser.set(new UserData(authUser.uid, {
+        username: authUser.displayName,
+        picture: authUser.photoURL,
         online: true
       }))
-    }else{
-      firebaseAuthUser = null;
-      await update({online: false});
+    } else {
+      firebaseAuthUser.set(null);
+      await firestoreUser.update({online: false});
+      // TODO: https://firebase.google.com/docs/firestore/solutions/presence#web
     }
   });
 
+  const { subscribe } = derived([firebaseAuthUser, firestoreUser], ([$firebaseAuthUser, $firestoreUser]): MergedUser => {
+    if(!$firestoreUser || !$firebaseAuthUser) {
+      return null
+    }
+    return {
+      id: $firestoreUser.id,
+      username: $firestoreUser.username,
+      picture: $firestoreUser.picture,
+      online: $firestoreUser.online,
+      email: $firebaseAuthUser.email
+    }
+  })
+
   return {
     subscribe,
-    async updateProfile(data){
-      if(!firebaseAuthUser){
+    async updateEmail(newEmail: string) {
+      const user = get(firebaseAuthUser);
+      if(!user){
         return;
       }
-      await updateProfile(firebaseAuthUser, data);
-      await update({
-        username: firebaseAuthUser.displayName || undefined,
-        picture: firebaseAuthUser.photoURL || undefined
+      await updateEmail(user, newEmail)
+    },
+    async updateProfile(data){
+      const user = get(firebaseAuthUser);
+      if(!user){
+        return;
+      }
+      await updateProfile(user, data);
+      await firestoreUser.update({
+        username: user.displayName || undefined,
+        picture: user.photoURL || undefined
       });
+    },
+    getRef() {
+      return firestoreUser.getRef();
     }
   };
 }

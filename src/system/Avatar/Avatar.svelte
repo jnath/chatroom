@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  export type Size = 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | 'xxxl';
+  export type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | 'xxxl';
 </script>
 <script lang="ts">
   import { stringToColor } from '$helpers/stringToColor';
@@ -43,21 +43,23 @@
 
 <style lang="postcss">
   figure {
+    --border-radius: 50%;
     --size-default: 40px;
     position: relative;
     width: var(--size, var(--size-default));
     height: var(--size, var(--size-default));
-    border-radius: 50%;
+    border-radius: var(--border-radius);
     background-color: var(--background-color);
     margin: 0;
     padding: 0;
+    flex-shrink: 0;
 
     &.badge::after {
       position: absolute;
       content: '';
       display: block;
-      width: 10px;
-      height: 10px;
+      width: 20%;
+      height: 20%;
       background-color: var(--online-color);
       border-radius: 50%;
       right: 0px;
@@ -66,7 +68,7 @@
     }
 
     img {
-      border-radius: 50%;
+      border-radius: var(--border-radius);
       height: 100%;
       width: 100%;
     }
@@ -83,22 +85,9 @@
     }
 
     & div.icon {
-      /* display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      filter: invert(100%);
-      height: 100%;
-      color: var(--background-color);
-      font-size: calc(var(--size, var(--size-default)) / 3); */
       position: absolute;
       right: 0;
       bottom: 0;
-      /* border: 1px solid grey; */
-      /* border-radius: 50%; */
-      /* margin: 5px; */
-      /* padding: 5px; */
-      /* background-color: white; */
     }
   }
 

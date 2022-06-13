@@ -17,7 +17,7 @@
     on:click
   >
     <ListItemAvatar>
-      <Avatar {username} {picture} {online} />
+      <Avatar size="xs" {username} {picture} {online} />
     </ListItemAvatar>
     <ListItemText>
       <Typography

@@ -1,24 +1,37 @@
 <script lang="ts" context="module">
-  export type Variant = 'container' | 'outlined' | 'text' | 'icon';
+  export type Variant = 'container' | 'outlined' | 'text' | 'icon' | 'none';
   export type Style = 'primary' | 'secondary' | 'none';
 </script>
 
 <script lang="ts">
+  import { createEventDispatcher } from 'svelte';
+
+
   export let variant: Variant = 'container';
   export let style: Style = 'none';
+  export let disabled = false;
 
   $: style = ( variant === 'container' || variant === "outlined" ) && style === "none" ? 'primary' : style;
 
   export let el: HTMLButtonElement | undefined = undefined;
+
+  const dispatch = createEventDispatcher();
+
+  const clickHandler = () => {
+    dispatch('click')
+  }
 </script>
 
 <button
-  on:click|preventDefault
+  on:click|preventDefault={clickHandler}
+  on:touchstart|preventDefault={clickHandler}
   bind:this={el}
   class:container={variant === 'container'}
   class:outlined={variant === 'outlined'}
   class:text={variant === 'text'}
   class:icon={variant === 'icon'}
+  class:none={variant === 'none'}
+  {disabled}
   class:primary={style === "primary"}
   class:secondary={style === "secondary"}
   {...$$restProps}
@@ -68,6 +81,12 @@
     height: fit-content;
 
     flex: var(--flex, 0);
+
+    align-items: center;
+
+    &:disabled {
+      pointer-events: none;
+    }
   }
 
   *.container {
@@ -143,5 +162,10 @@
     &:hover {
       opacity: var(--action-selectedOpacity);
     }
+  }
+
+  *.none {
+    width: auto;
+    justify-content: space-between;
   }
 </style>

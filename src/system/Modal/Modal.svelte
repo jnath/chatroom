@@ -38,7 +38,6 @@
       // }
     }
   }
-  $: console.log(size);
 </script>
 
 <div

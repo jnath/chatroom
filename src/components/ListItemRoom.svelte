@@ -18,6 +18,7 @@
   {selected}
   dense
   on:click={onClick}
+  on:touchstart={onClick}
 >
   <ListItemText>
     <Typography

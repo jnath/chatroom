@@ -1,4 +1,10 @@
-import { Timestamp, type DocumentData, type FirestoreDataConverter } from 'firebase/firestore';
+import type { UserData } from '$models/User';
+import type {
+  Timestamp,
+  DocumentReference,
+  DocumentData,
+  FirestoreDataConverter,
+} from 'firebase/firestore';
 
 export class MessageData {
 
@@ -6,24 +12,23 @@ export class MessageData {
 
   public date: Timestamp;
 
-  public userId: string;
+  public from: DocumentReference<UserData>;
 
   constructor(data: DocumentData){
     this.text = data.text;
     this.date = data.date;
-    this.userId = data.userId;
+    this.from = data.from;
   }
 }
 
 // Firestore data converter
 export const messageConverter: FirestoreDataConverter<MessageData> = {
   toFirestore(data) {
-    return JSON.parse(JSON.stringify(data), (key, value)=>{
-      if(key === 'date') {
-        return Timestamp.fromMillis(value.seconds * 1000)
-      }
-      return value;
-    });
+    return {
+      text: data.text,
+      date: data.date,
+      from: data.from
+    }
   },
   fromFirestore(snapshot, options) {
     const data = snapshot.data(options);

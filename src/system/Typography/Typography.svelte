@@ -20,6 +20,7 @@
   export let variant: Variant | 'inherit' = 'inherit';
 
   export let gutterBottom = false;
+  export let bold = false;
 
   const variantMapping: Record<string, string> = {
     headline1: 'h1',
@@ -40,6 +41,7 @@
   this={variantMapping[variant] || variantMapping.inherit}
   class={variant}
   class:gutterBottom
+  class:bold
   {...$$restProps}
 >
   <slot />
@@ -50,53 +52,57 @@
 
   * {
     font-family: var(--fontFamily);
-    text-transform: var(--transform);
     flex: var(--flex);
     margin: 0;
 
     &.gutterBottom {
       margin: 0px 0px 0.35em;
     }
+
+    &.headline1 {
+      @mixin font headline1;
+    }
+
+    &.headline2 {
+      @mixin font headline2;
+    }
+
+    &.headline3 {
+      @mixin font headline3;
+    }
+
+    &.headline4 {
+      @mixin font headline4;
+    }
+
+    &.headline5 {
+      @mixin font headline5;
+    }
+
+    &.headline6 {
+      @mixin font headline5;
+    }
+
+    &.subtitle1 {
+      @mixin font subtitle1;
+    }
+
+    &.subtitle2 {
+      @mixin font subtitle2;
+    }
+
+    &.body1 {
+      @mixin font body1;
+    }
+
+    &.body2 {
+      @mixin font body2;
+    }
+
+    &.bold {
+      font-weight: bold;
+    }
   }
 
-  *.headline1 {
-    @mixin font headline1;
-  }
-
-  *.headline2 {
-    @mixin font headline2;
-  }
-
-  *.headline3 {
-    @mixin font headline3;
-  }
-
-  *.headline4 {
-    @mixin font headline4;
-  }
-
-  *.headline5 {
-    @mixin font headline5;
-  }
-
-  *.headline6 {
-    @mixin font headline5;
-  }
-
-  *.subtitle1 {
-    @mixin font subtitle1;
-  }
-
-  *.subtitle2 {
-    @mixin font subtitle2;
-  }
-
-  *.body1 {
-    @mixin font body1;
-  }
-
-  *.body2 {
-    @mixin font body2;
-  }
 
 </style>

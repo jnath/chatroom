@@ -2,22 +2,31 @@
   import type { Component as ListComponent } from '$system/List/List.svelte';
 
   export type Component = ListComponent;
-</script>
 
+  export { offset } from '$system/Popper';
+</script>
 <script lang="ts">
+  import type { ComputePositionConfig } from '@floating-ui/dom';
+
+  import { createEventDispatcher } from 'svelte';
+
+  import clickOutside from '$directives/clickOutside';
+
   import List from '$system/List/List.svelte';
   import Popper from '$system/Popper';
 
-  export let component: Component = 'ul';
-  export let open = true;
-
   type T = $$Generic<HTMLElement>;
   export let anchor: T | undefined = undefined;
+  export let component: Component = 'ul';
+  export let open = true;
+  export let options: Partial<ComputePositionConfig> = {};
+
+  const dispatch = createEventDispatcher();
 </script>
 
 {#if open}
   {#if anchor}
-    <Popper {anchor}>
+    <Popper {anchor} {options} on:close >
       <div>
         <List {component}>
           <slot />
@@ -25,7 +34,7 @@
       </div>
     </Popper>
   {:else}
-    <div>
+    <div use:clickOutside={()=>dispatch('close')}>
       <List {component}>
         <slot />
       </List>

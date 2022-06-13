@@ -6,14 +6,22 @@
 
 <script lang="ts">
   export let component: Component = 'ul';
+  export let dense = false;
+
 </script>
 
 {#if typeof component === 'string'}
-  <svelte:element this={component}>
+  <svelte:element
+    this={component}
+    class="{dense ? 'dense': ''}"
+  >
     <slot />
   </svelte:element>
 {:else}
-  <svelte:component this={component}>
+  <svelte:component
+    this={component}
+    {dense}
+  >
     <slot />
   </svelte:component>
 {/if}
@@ -24,5 +32,9 @@
     margin: 0px;
     position: relative;
     padding: 8px 0;
+
+    &.dense {
+      padding: 0;
+    }
   }
 </style>

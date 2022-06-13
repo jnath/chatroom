@@ -12,6 +12,7 @@
   import Login, { type LoginFields} from './templates/Login.svelte';
   import Register, { type RegisterFields } from './templates/Register.svelte';
   import { page } from "$app/stores";
+  import Paper from '$system/Paper';
 
   let templateName: Template;
   $: templateName = $page.url.hash?.slice(1) as Template || Template.login
@@ -41,9 +42,11 @@
 
 <div class="Container">
   <div id="Logo"><img src="/logo.png" alt="logo" /></div>
-  <div class="Form">
-    <svelte:component this={template} on:send={send(templateName)} />
-  </div>
+  <Paper elevation={3}>
+    <div class="Form">
+      <svelte:component this={template} on:send={send(templateName)} />
+    </div>
+  </Paper>
 </div>
 
 <style lang="postcss">
@@ -51,7 +54,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    position: absolute;
+    position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -68,9 +71,9 @@
     z-index: 1;
     background: #FFFFFF;
     max-width: 360px;
-    margin: 0 auto 100px;
+    min-width: 190px;
+    margin: 0 auto;
     padding: 45px;
     text-align: center;
-    box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
   }
 </style>

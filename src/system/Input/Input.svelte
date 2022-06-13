@@ -9,13 +9,16 @@
 
   export let value:string | undefined = undefined;
   export let name: string;
+  export let label: string | undefined = undefined;
   export let placeholder: string;
   export let required = false;
   export let validators: Validator[] = [];
 </script>
 
 <div>
-  <label for={name}>{placeholder}</label>
+  {#if label}
+    <label for={name}>{label}</label>
+  {/if}
   <input
     bind:value={value}
     id={name}
@@ -40,6 +43,7 @@
   div {
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
     gap: 8px;
 
     label {

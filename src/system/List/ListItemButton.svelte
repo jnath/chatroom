@@ -13,16 +13,17 @@
 
 {#if typeof component === 'string'}
   <svelte:element
-    on:click
-    class:selected
-    class:dense
     this={component}
-    >
+    on:click
+    on:touchstart
+    class="{selected ? 'selected': ''} {dense ? 'dense': ''}"
+  >
     <slot />
   </svelte:element>
 {:else}
   <svelte:component
     on:click
+    on:touchstart
     this={component}
     {selected}
     {dense}
@@ -52,7 +53,8 @@
     box-sizing: border-box;
     text-align: left;
     transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
-    padding: 8px 16px 8px 16px;
+    padding: var(--padding, 8px 16px 8px 16px);
+    gap: 16px;
 
     &:hover {
       text-decoration: none;
@@ -60,12 +62,12 @@
     }
 
     &.selected {
-      background-color: var(--palette-primary-main);
+      background-color: var(--palette-primary-dark);
       color: var(--palette-primary-contrast);
     }
 
     &.dense {
-      padding: 0 16px 0 16px;
+      --padding: 0 16px 0 16px;
     }
   }
 </style>

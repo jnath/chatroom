@@ -8,11 +8,15 @@
 
   import translations from 'firebase-error-translator/dist/languages/fr'
 
-  import { initAuth } from '$stores/auth';
+  import {
+    initAuth,
+    loginWithEmailPassword,
+    registerWithEmailPassword,
+    updateProfile
+  } from '$stores/auth';
 
   import Auth, { type LoginFields, type RegisterFields } from '$components/Auth';
-  import Chatroom from '$components/Chatroom';
-  import { getStoredUser } from '$stores/currentUser';
+  import App from '$components/App';
 
   const { addNotification } = getNotificationsContext();
   type Code = keyof typeof translations;
@@ -40,9 +44,9 @@
     experimentalAutoDetectLongPolling: true /* This line fixed my issue*/
   };
 
-  const firestore = initializeFirestore(firebaseApp, firestoreSettings);
+  initializeFirestore(firebaseApp, firestoreSettings);
 
-  const { user, loginWithEmailPassword, registerWithEmailPassword, updateProfile, logout } = initAuth();
+  const user = initAuth();
 
   function removeHash () {
     history.pushState("", document.title, window.location.pathname + window.location.search);
@@ -80,7 +84,7 @@
 </script>
 
 {#if $user}
-  <Chatroom user={$user} {firestore} {logout} />
+  <App />
 {:else}
   <Auth on:send:login={loginHandler} on:send:register={registerHandler}/>
 {/if}

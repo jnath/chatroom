@@ -20,12 +20,14 @@
   type="text"
   {name}
   autocomplete="nickname"
+  label={placeholder}
   {placeholder}
   {required}
   validators={[
     maxLengthValidator(maxLength),
     minLengthValidator(minLength)
   ]}
+  {...$$restProps}
 >
   <svelte:fragment slot="hints">
     <Hint on="maxLength" hideWhenRequired let:value>{placeholder} requires at max {maxLength} characters.</Hint>

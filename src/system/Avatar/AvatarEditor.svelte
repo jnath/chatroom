@@ -345,9 +345,9 @@
       const deltaDistance = distance(e.touches);
       // scale = deltaDistance / startDistance;
       if(startDistance>deltaDistance){
-        scale = Math.max(Math.min( scale - .01, 10), .1);
+        scale = Math.max(Math.min( scale - .01, 10), 1);
       } else if (startDistance<deltaDistance){
-        scale = Math.max(Math.min( scale + .01, 10), .1);
+        scale = Math.max(Math.min( scale + .01, 10), 1);
       }
     }
 
@@ -547,9 +547,9 @@
   const handleMousewheel = (e: WheelEvent)=>{
     const more = e.deltaY > 0;
     if(more){
-      scale = Math.max(Math.min( scale + .1, 10), .1);
+      scale = Math.max(Math.min( scale + .1, 10), 1);
     }else{
-      scale = Math.max(Math.min( scale - .1, 10), .1);
+      scale = Math.max(Math.min( scale - .1, 10), 1);
     }
   }
 
