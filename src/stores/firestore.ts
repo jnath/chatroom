@@ -1,4 +1,4 @@
-import { writable, type Subscriber, type Unsubscriber } from 'svelte/store';
+import { get, writable, type Subscriber, type Unsubscriber } from 'svelte/store';
 import {
   addDoc,
   collection,
@@ -7,7 +7,11 @@ import {
   onSnapshot,
   query,
   QueryConstraint,
+  QueryDocumentSnapshot,
+  QuerySnapshot,
   setDoc,
+  startAfter,
+  startAt,
   updateDoc,
   type Firestore,
   type FirestoreDataConverter,
@@ -17,7 +21,8 @@ import {
 export { orderBy, where, limit } from 'firebase/firestore';
 
 export type StoreFirestoreCollection<T> = SvelteStore<T[]> & {
-  add(doc: T): Promise<void>
+  add(doc: T): Promise<void>,
+  // next(): Promise<StoreFirestoreCollection<T>>
 };
 
 export type StoreFirestoreDocument<T> = SvelteStore<T> & {
@@ -71,6 +76,29 @@ export const createStoreDoc = <T>({firestore, converter, paths = [] }:{
   }
 }
 
+const updateWithSnapshot = <T>(snapshot:QuerySnapshot<T>, datas: T[]) => {
+  const newData = [...datas];
+  const changes = snapshot.docChanges();
+  changes
+  .forEach((change)=>{
+    if(change.type === 'added'){
+      if(newData.length > change.newIndex){
+        if(change.oldIndex > -1){
+          newData.splice(change.oldIndex)
+        }
+        newData.splice(change.newIndex, 0, change.doc.data())
+      } else {
+        newData.push(change.doc.data())
+      }
+    } else if( change.type === 'modified') {
+      newData.splice(change.newIndex, 1, change.doc.data())
+    } else if( change.type === 'removed') {
+      newData.splice(change.oldIndex)
+    }
+  })
+  return [...newData]
+}
+
 export const createStoreCollection = <T>({firestore, converter, containtes = [], paths = [] }:{
   firestore: Firestore,
   converter: FirestoreDataConverter<T>,
@@ -83,31 +111,54 @@ export const createStoreCollection = <T>({firestore, converter, containtes = [],
   const queryConstraint = Array.isArray(containtes) ? containtes : [containtes];
   const q = query(collectionRef, ...queryConstraint);
 
+
+
+  // let lastVisible: QueryDocumentSnapshot<T>;
+  // const next = async () => {
+  //   if(!lastVisible){
+  //     throw new Error('next must be call after')
+  //   }
+  //   const nextQ = query(collectionRef, ...[...queryConstraint, startAfter(lastVisible)]);
+  //   onSnapshot(nextQ, (snapshot) => {
+  //     console.log('next snap', snapshot);
+  //     const changes = snapshot.docChanges();
+  //     console.log(changes.map((change)=>change))
+  //   });
+  //   // get(createStoreCollection({
+  //   //   firestore,
+  //   //   converter,
+  //   //   containtes: [...queryConstraint, startAt(10)],
+  //   //   paths
+  //   // }))
+  // }
+
   const unsubscribe = onSnapshot(q, (snapshot) => {
+    // lastVisible = snapshot.docs[snapshot.docs.length - 1];
+
     upsateStore((datas)=>{
-      const newData = [...datas];
-      const changes = snapshot.docChanges();
-      changes
-      .forEach((change)=>{
-        if(change.type === 'added'){
-          if(newData.length > change.newIndex){
-            if(change.oldIndex > -1){
-              newData.splice(change.oldIndex)
-            }
-            newData.splice(change.newIndex, 0, change.doc.data())
-          } else {
-            newData.push(change.doc.data())
-          }
-        } else if( change.type === 'modified') {
-          newData.splice(change.newIndex, 1, change.doc.data())
-        } else if( change.type === 'removed') {
-          newData.splice(change.oldIndex)
-        }
-      })
-      return [...newData]
+      return updateWithSnapshot(snapshot, datas);
+      // const newData = [...datas];
+      // const changes = snapshot.docChanges();
+      // changes
+      // .forEach((change)=>{
+      //   if(change.type === 'added'){
+      //     if(newData.length > change.newIndex){
+      //       if(change.oldIndex > -1){
+      //         newData.splice(change.oldIndex)
+      //       }
+      //       newData.splice(change.newIndex, 0, change.doc.data())
+      //     } else {
+      //       newData.push(change.doc.data())
+      //     }
+      //   } else if( change.type === 'modified') {
+      //     newData.splice(change.newIndex, 1, change.doc.data())
+      //   } else if( change.type === 'removed') {
+      //     newData.splice(change.oldIndex)
+      //   }
+      // })
+      // return [...newData]
     })
   });
-
 
   return {
     subscribe: (run: Subscriber<T[]>, invalidate): Unsubscriber => {
@@ -117,6 +168,7 @@ export const createStoreCollection = <T>({firestore, converter, containtes = [],
         unsubscribe();
       }
     },
+    // next,
     async add(doc: T){
       try {
         await addDoc(collectionRef, doc);

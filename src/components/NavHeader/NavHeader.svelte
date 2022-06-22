@@ -13,7 +13,7 @@
   import Modal from '$system/Modal';
   import Typography from '$system/Typography';
   import { logout } from '$stores/auth';
-import Divider from '$system/Divider';
+  import Divider from '$system/Divider';
 
   export let currentUser: StoredUser;
 

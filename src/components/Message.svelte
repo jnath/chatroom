@@ -29,7 +29,7 @@
         {isCurrentUser ? 'Moi' : user?.username || 'Anonymous'}
       </Typography>
       <Typography variant="body2">
-        {new Intl.DateTimeFormat('fr-FR', { timeStyle: 'short' }).format(new Date(timestamp))}
+        {new Intl.DateTimeFormat('fr-FR', { timeStyle: 'short', dateStyle:'medium' }).format(new Date(timestamp))}
       </Typography>
     </div>
     <Typography variant="body2">{text}</Typography>
