@@ -74,23 +74,25 @@
 </script>
 
 {#if $messages?.length && $currentUser}
-  <MessagesList
-    bind:this={virtualList}
-    items={[...$messages].reverse()}
-    on:infinite={morePreviousMessage}
-    bind:loading
-  >
-    <div slot="loader">Loading</div>
-    <svelte:fragment slot="item" let:item>
-      <Message
-        slot="item"
-        isCurrentUser={item.from.id === $currentUser.id}
-        text={item.text}
-        timestamp={item.date.seconds * 1000}
-        from={item.from}
-      />
-    </svelte:fragment>
-  </MessagesList>
+  {#key roomId}
+    <MessagesList
+      bind:this={virtualList}
+      items={[...$messages].reverse()}
+      on:infinite={morePreviousMessage}
+      bind:loading
+    >
+      <div slot="loader">Loading</div>
+      <svelte:fragment slot="item" let:item>
+        <Message
+          slot="item"
+          isCurrentUser={item.from.id === $currentUser.id}
+          text={item.text}
+          timestamp={item.date.seconds * 1000}
+          from={item.from}
+        />
+      </svelte:fragment>
+    </MessagesList>
+  {/key}
   <TextArea
     bind:this={textAreaEl}
     bind:value={input}

@@ -1,29 +1,40 @@
 import { derived, writable } from 'svelte/store'
 import { Type } from './constant'
 
-const store = writable({ items: [] })
+export function store(){
 
 
-export const elements = derived(store, (state) => state.items)
+  const store = writable({ items: [] })
 
-let previous: never[] = []
-export const changes = derived<typeof store, [never[], never[]]>(store, (state, set) => {
-  set([state.items, previous])
-  previous = state.items
-})
+  const elements = derived(store, (state) => state.items)
 
-export const type = derived(changes, (state) => {
-  const [newer, older] = state
+  let previous: never[] = []
+  const changes = derived<typeof store, [never[], never[]]>(store, (state, set) => {
+    set([state.items, previous])
+    previous = state.items
+  })
 
-  if (!!newer && newer.length === 0 && older.length === 0) return Type.init
-  if (!!newer && !!older && newer.length - older.length > 0) return Type.add
-  if (!!newer && !!older && newer.length === older.length) return Type.modify
-  if (!!newer && !!older && newer.length - older.length < 0) return Type.remove
-})
+  const type = derived(changes, (state) => {
+    const [newer, older] = state
 
-export const load = <T>(items: T[]) => store.update((state) => ({ ...state, items: [...items as never[]] }))
+    if (!!newer && newer.length === 0 && older.length === 0) return Type.init
+    if (!!newer && !!older && newer.length - older.length > 0) return Type.add
+    if (!!newer && !!older && newer.length === older.length) return Type.modify
+    if (!!newer && !!older && newer.length - older.length < 0) return Type.remove
+  })
 
-export const reset = () => {
-  previous = []
+  const load = <T>(items: T[]) => store.update((state) => ({ ...state, items: [...items as never[]] }))
+
+  const reset = () => {
+    previous = []
+  }
+
+  return {
+    elements,
+    changes,
+    type,
+    load,
+    reset
+  }
 }
 

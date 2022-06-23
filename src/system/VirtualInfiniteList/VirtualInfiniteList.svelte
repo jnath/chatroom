@@ -1,9 +1,11 @@
 <script lang="ts">
   import { createEventDispatcher, onDestroy, onMount, tick } from 'svelte'
-  import { load, type, changes, reset as rs } from './store'
+  import { store } from './store'
   import { Type, Direction } from './constant'
   import { getFirstItemMarginTop, getLoaderHeight } from './util'
   const dispatch = createEventDispatcher()
+
+  const { load, type, changes, reset: rs } = store();
 
   type T = $$Generic<Record>;
 
@@ -47,6 +49,7 @@
   $: if (mounted) forceRefresh();
 
   async function onChange(type: Type, newers: T[], olders: T[]) {
+    console.log('onchange', type)
     switch (type) {
       case Type.add: {
         const reachedTop = viewport?.scrollTop === 0
