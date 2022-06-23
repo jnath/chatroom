@@ -68,7 +68,8 @@
         break
       }
     }
-    if (newers && newers.length > 0 && olders && olders.length === 0) dispatch('initialize')
+    if (newers && newers.length > 0 && olders && olders.length === 0) dispatch('initialize');
+
   }
   async function onTop(newers: T[], olders: T[]) {
     const loader = await getLoaderHeight(
@@ -302,11 +303,11 @@
   // trigger initial refresh
   onMount(() => {
     rows = contents.getElementsByTagName('virtual-infinite-list-row')  as unknown as HTMLDivElement[];
-    viewport.addEventListener('wheel', onScroll, { passive: false })
+    viewport.addEventListener('scroll', onScroll, { passive: false })
     mounted = true;
   })
   onDestroy(() => {
-    viewport.removeEventListener('wheel', onScroll)
+    viewport.removeEventListener('scroll', onScroll)
   })
 </script>
 

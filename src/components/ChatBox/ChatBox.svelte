@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createStoreCollection, orderBy, limit, type StoreFirestoreCollection } from '$stores/firestore';
 
-  import { getFirestore, startAfter, startAt, Timestamp } from 'firebase/firestore';
+  import { startAfter, Timestamp } from 'firebase/firestore';
 
   import { getCurrentUser } from '$stores/currentUser';
 
@@ -14,18 +14,28 @@
 
   export let roomId: string | undefined;
 
-  const firestore = getFirestore();
-
   let paginations: StoreFirestoreCollection<MessageData>[] = [];
 
-  $: messages = roomId && createStoreCollection({
-    firestore,
-    converter: messageConverter,
-    containtes: [orderBy('date', 'desc'), limit(10)],
-    paths: ['rooms', roomId, 'messages']
-  });
+  let addMessage: (doc: MessageData) => Promise<void>;
+  let prevRoomId: string | undefined;
+  $: {
+    if(roomId && prevRoomId !== roomId) {
+      const initNumberOfMessages = Math.ceil(document.body.offsetHeight / 60) + 5;
+      const init = createStoreCollection({
+        converter: messageConverter,
+        containtes: [orderBy('date', 'desc'), limit(initNumberOfMessages)],
+        paths: ['rooms', roomId, 'messages']
+      });
+      addMessage = init.add;
+      paginations = [init];
+    }
+    prevRoomId = roomId;
+  }
 
-  // $: paginations;
+  $: messages = derived<StoreFirestoreCollection<MessageData>[], MessageData[]>(
+    paginations,
+    ($values)=> $values.flat()
+  );
 
   $: currentUser = getCurrentUser();
 
@@ -37,7 +47,7 @@
     if(!input || !messages || !$currentUser){
       return
     }
-    await messages.add(new MessageData({
+    await addMessage(new MessageData({
       text: input,
       date: Timestamp.now(),
       from: currentUser.getRef()
@@ -45,30 +55,28 @@
     textAreaEl.reset();
     await virtualList.scrollToBottom();
   }
+
+  let prevLastDate: Timestamp;
   const morePreviousMessage = async () => {
+    const lastDate = $messages[$messages.length -1].date;
+    if(!roomId || prevLastDate === lastDate) return;
     loading = true;
-    const lastDate = $nextMessages[$nextMessages.length -1]?.date || messages && $messages[$messages.length -1].date;
-    if(!roomId) return;
     paginations = [...paginations, createStoreCollection({
-      firestore,
       converter: messageConverter,
       containtes: [orderBy('date', 'desc'), limit(10), startAfter(lastDate)],
       paths: ['rooms', roomId, 'messages']
     })]
+    messages.subscribe(()=>{
+      loading = false;
+    })
+    prevLastDate = lastDate;
   }
-
-
-  $:nextMessages = derived<StoreFirestoreCollection<MessageData>[], MessageData[]>(paginations, ($values, set)=>{
-    set($values.flat())
-  });
-
-  $: console.log($nextMessages);
 </script>
 
-{#if messages && $messages && $messages.length && $currentUser}
+{#if $messages?.length && $currentUser}
   <MessagesList
     bind:this={virtualList}
-    items={[...$messages, ...(nextMessages && $nextMessages || [])].reverse()}
+    items={[...$messages].reverse()}
     on:infinite={morePreviousMessage}
     bind:loading
   >

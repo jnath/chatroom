@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Direction } from '$system/VirtualInfiniteList/constant';
 
-  import { createEventDispatcher, onMount, tick } from 'svelte'
+  import { onMount, tick } from 'svelte'
   import VirtualInfiniteList from '$system/VirtualInfiniteList';
   import type { MessageData } from '$models/Message';
 
@@ -24,24 +24,10 @@
     await virtualInfiniteList.scrollToBottom();
   }
 
-  const dispatch = createEventDispatcher();
-
   async function onInitialize() {
-    // setTimeout(() => {
-    //   virtualInfiniteList.scrollToBottom()
-    // }, 0);
     isBottom = true;
 	}
 
-  async function onInfinite({ detail }: CustomEvent<{on: Direction}>) {
-    loading = true
-    dispatch('infinite')
-    // console.log('onInfinit')
-    // const animals = await find(30)
-    // if (detail.on === 'top') items = [...animals, ...items]
-    // else items = [...items, ...animals]
-    loading = false
-  }
 
   async function onReachedBottom(){
     isBottom = true;
@@ -55,15 +41,12 @@
     if(isBottom && items.length){
       setTimeout(() => {
         virtualInfiniteList.scrollToBottom()
-      }, 0);
+      }, 10);
     }
   }
 
   onMount(async () => {
-    // loading = true
-    // viewport = document.querySelector('virtual-infinite-list-viewport') as unknown as HTMLDivElement;
     loading = false
-    // virtualInfiniteList.scrollToBottom()
   })
 </script>
 
@@ -74,7 +57,7 @@
   persists={0}
   uniqueKey={'id'}
   on:initialize={onInitialize}
-  on:infinite={onInfinite}
+  on:infinite
   on:scroll={onScroll}
   on:reached:bottom={onReachedBottom}
   bind:start

@@ -1,18 +1,12 @@
 <script lang="ts">
-  import { type Firestore, getFirestore } from 'firebase/firestore';
-
   import {
-    type StoreFirestoreCollection,
     orderBy,
     where,
-    limit,
     createStoreCollection,
   } from '$stores/firestore';
 
-
   import { roomConverter } from '$models/Room';
   import { userConverter } from '$models/User';
-  import { messageConverter, MessageData } from '$models/Message';
 
   import List from '$system/List/List.svelte';
 
@@ -27,19 +21,15 @@
   import Typography from '$system/Typography';
   import ChatBox from '$components/ChatBox';
 
-  let firestore: Firestore = getFirestore();
-
   $: currentUser = getCurrentUser();
 
   const roomsOrdered = createStoreCollection({
-    firestore,
     converter: roomConverter,
     containtes: [where('order', '>=', 0), orderBy('order', 'asc')],
     paths: 'rooms'
   });
 
   const roomsUnordered = createStoreCollection({
-    firestore,
     converter: roomConverter,
     containtes: [where('order', '<', 0), orderBy('order', 'desc'), orderBy('title', 'asc')],
     paths: 'rooms'
@@ -48,7 +38,6 @@
   $: rooms = [...$roomsOrdered || [], ...$roomsUnordered || []];
 
   $: users = $currentUser && createStoreCollection({
-    firestore,
     converter: userConverter,
     containtes: [where('id', '!=', $currentUser.id)],
     paths: 'users'
