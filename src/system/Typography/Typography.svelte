@@ -21,6 +21,7 @@
 
   export let gutterBottom = false;
   export let bold = false;
+  export let spaceLeft = false;
 
   const variantMapping: Record<string, string> = {
     headline1: 'h1',
@@ -42,6 +43,7 @@
   class={variant}
   class:gutterBottom
   class:bold
+  class:spaceLeft
   {...$$restProps}
 >
   <slot />
@@ -57,6 +59,10 @@
 
     &.gutterBottom {
       margin: 0px 0px 0.35em;
+    }
+
+    &.spaceLeft {
+      padding-left: 16px;
     }
 
     &.headline1 {

@@ -7,10 +7,12 @@
 
   import { messageConverter, MessageData } from '$models/Message';
 
-  import TextArea from '$components/TextArea.svelte';
+  // import TextArea from '$components/TextArea';
   import Message from '$components/Message.svelte';
   import MessagesList from '$components/ChatBox/MessagesList.svelte';
   import { derived } from 'svelte/store';
+  import Editor from '$system/Editor';
+import { tick } from 'svelte';
 
   export let roomId: string | undefined;
 
@@ -71,6 +73,17 @@
     })
     prevLastDate = lastDate;
   }
+
+  let showTextEditing: boolean;
+
+  $: paddingListBottom = 0;
+
+  $: {
+    setTimeout(()=>{
+      paddingListBottom = showTextEditing ? 24 : 0
+    }, 300)
+  }
+
 </script>
 
 {#if $messages?.length && $currentUser}
@@ -80,6 +93,7 @@
       items={[...$messages].reverse()}
       on:infinite={morePreviousMessage}
       bind:loading
+      bind:paddingListBottom
     >
       <div slot="loader">Loading</div>
       <svelte:fragment slot="item" let:item>
@@ -93,11 +107,27 @@
       </svelte:fragment>
     </MessagesList>
   {/key}
-  <TextArea
+  <!-- <Editor options={{
+    initialEditType: 'wysiwyg',
+    hideModeSwitch: true,
+    toolbarItems:[
+      // ['heading'],
+      ['bold', 'italic', 'strike'],
+      ['link'],
+      ['ul', 'ol'],
+      ['quote'],
+      // ['task', 'indent', 'outdent'],
+      // ['table', 'image', 'link'],
+      ['code', 'codeblock'],
+    ]
+  }} /> -->
+
+  <Editor bind:showTextEditing />
+  <!-- <TextArea
     bind:this={textAreaEl}
     bind:value={input}
     on:send={sendMessage}
-  />
+  /> -->
 {/if}
 
 <style lang="postcss">

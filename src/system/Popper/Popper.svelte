@@ -7,6 +7,8 @@
 
   export let options: Partial<ComputePositionConfig> = {};
 
+  export let pos: { x: number, y: number } | undefined = undefined;
+
   const dispatch = createEventDispatcher();
 
   let el: HTMLDivElement;
@@ -17,6 +19,15 @@
       Object.assign(el.style, {
         left: `${x}px`,
         top: `${y}px`,
+      });
+    }
+  }
+
+  $: {
+    if(pos && el){
+      Object.assign(el.style, {
+        left: `${pos.x}px`,
+        top: `${pos.y}px`,
       });
     }
   }

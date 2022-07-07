@@ -20,7 +20,8 @@
   --action-disabled: rgba(0, 0, 0, 0.26);
   --action-hover: rgba(0, 0, 0, 0.04);
   --action-active: rgba(0, 0, 0, 0.54);
-  --action-selectedOpacity: 0.8;
+  --action-selected: rgba(0, 0, 0, 0.08);
+  --action-selectedOpacity: 0.08;
 
   --fontFamily: Lato, Helvetica, Arial, sans-serif;
 

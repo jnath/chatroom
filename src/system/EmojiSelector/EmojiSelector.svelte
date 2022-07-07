@@ -7,6 +7,7 @@
 		faBuilding,
 		faFlag,
 		faLightbulb,
+		faFaceSmile,
 		faSmile,
 		type IconDefinition
 	} from '@fortawesome/free-regular-svg-icons';
@@ -26,7 +27,7 @@
 
 	import { data as emojiData } from './data/emoji.json';
 
-	const smileIcon = faSmile;
+	const smileIcon = faFaceSmile;
 
 	export let maxRecents = 50;
 	export let autoClose = true;
@@ -109,7 +110,7 @@
 	}
 
 	function onVariantClick(event: CustomEvent) {
-		dispatch('emoji', event.detail.emoji);
+		dispatch('select', event.detail.emoji);
 		saveRecent(event.detail);
 		hideVariants();
 
@@ -137,20 +138,23 @@
 	}
 
 	let buttonRef: Button;
-	$: anchor = buttonRef?.$$?.ctx?.[0];
+	$: anchor = buttonRef?.$$?.ctx?.find((el: any)=>el instanceof HTMLButtonElement);
 </script>
 
 <svelte:body on:keydown={onKeyDown} />
 <Button
 	bind:this={buttonRef}
 	variant="icon"
+	disabled={pickerVisible}
 	on:click={togglePicker}
 >
-	<Icon size="lg" icon={smileIcon} />
+	<Icon
+		icon={smileIcon}
+	/>
 </Button>
 
 {#if pickerVisible}
-	<Popper {anchor} options={{ placement:"top-end" }}>
+	<Popper {anchor} options={{ placement:"top-start" }} on:close={hidePicker}>
 		<div
 			class="svelte-emoji-picker"
 		>

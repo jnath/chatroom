@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  import type { SvelteComponent } from 'svelte/internal';
+  import { onMount, type SvelteComponent } from 'svelte/internal';
 
   export type Component = 'div' | SvelteComponent;
   export type Padding = Record<'left' | 'right' | 'top' | 'bottom', number>;
@@ -9,13 +9,32 @@
   export let component: Component = 'div';
   export let selected = false;
   export let dense = false;
+
+  let mounted = false;
+
+  let binded:HTMLElement;
+  export function focus(){
+    binded.focus();
+  }
+
+  $: {
+    if(mounted && selected){
+      binded.scrollIntoView();
+    }
+  }
+
+  onMount(()=>{
+    mounted = true;
+  })
 </script>
 
 {#if typeof component === 'string'}
   <svelte:element
     this={component}
+    bind:this={binded}
     on:click
     on:touchstart
+    on:keydown
     class="{selected ? 'selected': ''} {dense ? 'dense': ''}"
   >
     <slot />
@@ -24,7 +43,9 @@
   <svelte:component
     on:click
     on:touchstart
+    on:keydown
     this={component}
+    bind:this={binded}
     {selected}
     {dense}
     >

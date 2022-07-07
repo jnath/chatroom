@@ -7,6 +7,7 @@
 
   export let items: MessageData[] = [];
   export let loading = true
+  export let paddingListBottom = 0;
   let start: number;
   let end: number;
 	let virtualInfiniteList: VirtualInfiniteList<MessageData>
@@ -41,13 +42,21 @@
     if(isBottom && items.length){
       setTimeout(() => {
         virtualInfiniteList.scrollToBottom()
-      }, 10);
+      }, 100);
     }
   }
 
   onMount(async () => {
     loading = false
   })
+
+  // $: paddingListBottom = showTextEditing ? 24 : 0;
+
+  $: {
+    if(virtualInfiniteList && paddingListBottom !== undefined){
+      virtualInfiniteList.scrollToBottom();
+    }
+  }
 </script>
 
 <VirtualInfiniteList
@@ -63,20 +72,8 @@
   bind:start
   bind:end
   bind:this={virtualInfiniteList}
-  let:item
+  bind:paddingListBottom
 >
-  <!-- <div slot="item">
-    <div class="row">
-      <div>
-        {item.firstName}
-      </div>
-      {#if item.familyName}
-      <div>
-        {item.familyName}
-      </div>
-      {/if}
-    </div>
-  </div> -->
   <svelte:fragment slot="item" let:item >
     <slot name="item" {item} />
   </svelte:fragment>

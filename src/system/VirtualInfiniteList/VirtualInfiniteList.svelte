@@ -14,7 +14,8 @@
   export let itemHeight: number | undefined = undefined
   export let direction: Direction = Direction.bottom;
   export let loading = false
-  export let uniqueKey: string | undefined = undefined
+  export let uniqueKey: string | undefined = undefined;
+  export let paddingListBottom = 24;
   /**
    * [**For direction-top infinite scroll user**]
    * Maximum number of items loaded per load.
@@ -319,7 +320,7 @@
 <virtual-infinite-list-viewport
   bind:this={viewport}
   bind:offsetHeight={viewportHeight}
-  style="height: {height};"
+  style="height: {height}; padding-bottom: {paddingListBottom}px;"
 >
   <virtual-infinite-list-contents
     bind:this={contents}

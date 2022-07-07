@@ -8,7 +8,7 @@
   <Typography
     variant="body2"
     bold
-    style="padding-left:16px;"
+    spaceLeft
   >
     {title}
   </Typography>

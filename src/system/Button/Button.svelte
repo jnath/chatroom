@@ -6,7 +6,6 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
 
-
   export let variant: Variant = 'container';
   export let style: Style = 'none';
   export let disabled = false;
@@ -160,7 +159,7 @@
       --color: var(--palette-secondary-main);
     }
     &:hover {
-      opacity: var(--action-selectedOpacity);
+      background-color: var(--action-hover);
     }
   }
 
