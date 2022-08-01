@@ -3,73 +3,90 @@
     promptTemplate: string,
     callback:(value: unknown) => void;
   }
+
+  export { SupportedKeys } from './Content.svelte';
+
+  export type Cmd = { command: string, actived: boolean};
+
 </script>
 <script lang="ts">
-  import type { CmdKey } from '@milkdown/core';
   import { createEventDispatcher } from 'svelte';
 
   import Icon from 'svelte-fa';
 	import { faBold, faItalic, faStrikethrough, faLink, faLinkSlash, faList, faListOl } from '@fortawesome/free-solid-svg-icons';
 
-  import Button from '$system/Button';
-
-  import { commands } from './Content.svelte';
+  import { SupportedKeys } from './Content.svelte';
 
   import { buttonStatus } from './stores/toolbar';
-import ToolbarButton from '$system/Editor/ToolbarButton.svelte';
-
+  import ToolbarButton from '$system/Editor/ToolbarButton.svelte';
 
   export let hidden = false;
+  export let disabled = false;
 
   const dispatch = createEventDispatcher();
 
-  const linkValue = async ()=>{
-    return new Promise((resolve)=>{
-      dispatch('value', {
-        promptTemplate: 'link',
-        callback:resolve
-      })
-    })
-    // return prompt('Enter the URL');
-  }
+  // const linkValue = async ()=>{
+  //   return new Promise((resolve)=>{
+  //     dispatch('prompt', {
+  //       promptTemplate: 'link',
+  //       callback:resolve
+  //     })
+  //   })
+  //   // return prompt('Enter the URL');
+  // }
 
-  const selectToolButton = <T,>(cmd: { command: CmdKey<T>, payload?: T | unknown}) => async (e: CustomEvent) => {
+  // const selectToolButton = <T,>(cmd: { command: CmdKey<T>, payload?: T | unknown}) => async (e: CustomEvent) => {
+  const selectToolButton = (cmd: Cmd) => async (e: CustomEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    let payload
-    if(typeof cmd.payload === 'function'){
-      payload = await cmd.payload();
-    }else{
-      payload = cmd.payload;
-    }
-    dispatch('select',{ command: cmd.command, payload });
+    // let payload
+    // if(typeof cmd.payload === 'function'){
+    //   payload = await cmd.payload();
+    // }else{
+    //   payload = cmd.payload;
+    // }
+    dispatch('select',cmd);
   }
 </script>
 <toolbar
   class:hidden
 >
   <ToolbarButton
-    on:click={selectToolButton({ command: commands.ToggleBold })}
+    {disabled}
+    on:click={selectToolButton({
+      command: SupportedKeys.ToggleBold,
+      actived: $buttonStatus['strong']?.activated
+    })}
     hightlight={$buttonStatus['strong']?.activated}
   >
     <Icon icon={faBold} />
   </ToolbarButton>
   <ToolbarButton
-    on:click={selectToolButton({ command: commands.ToggleItalic })}
+    {disabled}
+    on:click={selectToolButton({
+      command: SupportedKeys.ToggleItalic,
+      actived: $buttonStatus['em']?.activated
+    })}
     hightlight={$buttonStatus['em']?.activated}
   >
     <Icon icon={faItalic} />
   </ToolbarButton>
   <ToolbarButton
-    on:click={selectToolButton({ command: commands.ToggleStrikeThrough })}
+    {disabled}
+    on:click={selectToolButton({
+      command: SupportedKeys.ToggleStrikeThrough,
+      actived: $buttonStatus['strike_through']?.activated
+    })}
     hightlight={$buttonStatus['strike_through']?.activated}
   >
     <Icon icon={faStrikethrough} />
   </ToolbarButton>
   <ToolbarButton
+    {disabled}
     on:click={selectToolButton({
-      command: commands.ToggleLink,
-      payload: $buttonStatus['link']?.activated ? undefined : linkValue
+      command: SupportedKeys.ToggleLink,
+      actived: $buttonStatus['link']?.activated
+      // payload: $buttonStatus['link']?.activated ? undefined : linkValue
     })}
     hightlight={$buttonStatus['link']?.activated}
   >
@@ -78,13 +95,21 @@ import ToolbarButton from '$system/Editor/ToolbarButton.svelte';
     />
   </ToolbarButton>
   <ToolbarButton
-    on:click={selectToolButton({ command: commands.ToggleBulletList })}
+    {disabled}
+    on:click={selectToolButton({
+      command: SupportedKeys.ToggleBulletList,
+      actived: $buttonStatus['bullet_list']?.activated
+    })}
     hightlight={$buttonStatus['bullet_list']?.activated}
   >
     <Icon icon={faList} />
   </ToolbarButton>
   <ToolbarButton
-    on:click={selectToolButton({ command: commands.ToggleOrderedList })}
+    {disabled}
+    on:click={selectToolButton({
+      command: SupportedKeys.ToggleOrderedList,
+      actived: $buttonStatus['ordered_list']?.activated
+    })}
     hightlight={$buttonStatus['ordered_list']?.activated}
   >
     <Icon icon={faListOl} />

@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { UserData } from '$models/User';
   import Avatar from '$system/Avatar';
+import Viewer from '$system/Editor/Viewer.svelte';
   import Typography from '$system/Typography';
   import { onSnapshot, type DocumentReference } from 'firebase/firestore';
   import { onMount } from 'svelte';
@@ -32,7 +33,8 @@
         {new Intl.DateTimeFormat('fr-FR', { timeStyle: 'short', dateStyle:'medium' }).format(new Date(timestamp))}
       </Typography>
     </div>
-    <Typography variant="body2">{text}</Typography>
+    <Viewer value={text} />
+    <!-- <Typography variant="body2">{text}</Typography> -->
   </div>
 </div>
 

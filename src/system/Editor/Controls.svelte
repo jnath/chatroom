@@ -1,30 +1,38 @@
-<script>
+<script lang="ts">
   import { createEventDispatcher } from 'svelte';
 
   import Button from '$system/Button';
   import Icon from 'svelte-fa';
-	import { faCirclePlus, faPaperPlane, faParagraph } from '@fortawesome/free-solid-svg-icons';
+	import { faUpload, faPaperPlane, faParagraph } from '@fortawesome/free-solid-svg-icons';
 
   import EmojiSelector from '$system/EmojiSelector';
 
   const dispatch = createEventDispatcher();
 
-  const onEmojiSelected = ()=> dispatch('onEmojiSelected');
+  const onEmojiSelected = ({detail}: CustomEvent)=> dispatch('onEmojiSelected', detail);
   const toogleTextEditing = ()=> dispatch('toogleTextEditing');
   const sendMessages = ()=> dispatch('sendMessages');
 
+  let input: HTMLInputElement;
+  export let files: FileList;
+  export let disabled = false;
+
 </script>
+
 <controls>
   <controls-right>
-    <Button variant="icon">
+    <input
+      bind:this={input}
+      type="file" multiple accept="image/*" style="display:none" bind:files />
+    <Button variant="icon" on:click={()=>input.click()} {disabled}>
       <Icon
-        icon={faCirclePlus}
+        icon={faUpload}
       />
     </Button>
   </controls-right>
   <controls-buttons>
-    <EmojiSelector on:select={onEmojiSelected} />
-    <Button variant="icon" on:click={toogleTextEditing}>
+    <EmojiSelector on:emoji={onEmojiSelected} />
+    <Button variant="icon" on:click={toogleTextEditing} {disabled}>
       <Icon
         icon={faParagraph}
       />
@@ -35,6 +43,7 @@
       variant="icon"
       style='primary'
       on:click={sendMessages}
+      {disabled}
     >
       <Icon
         icon={faPaperPlane}
@@ -44,6 +53,7 @@
 </controls>
 
 <style lang="postcss">
+
   controls {
     display: flex;
     padding: 4px;

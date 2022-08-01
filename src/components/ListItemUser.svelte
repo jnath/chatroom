@@ -10,11 +10,18 @@
   export let picture: string;
   export let username: string;
   export let online = false;
+
+  let binded: ListItemButton;
+  export function scrollIntoView() {
+    binded.scrollIntoView();
+  }
 </script>
 
-<ListItem data-id={id}>
+<!-- <ListItem data-id={id}> -->
   <ListItemButton
+    bind:this={binded}
     on:click
+    data-id={id}
   >
     <ListItemAvatar>
       <Avatar size="xs" {username} {picture} {online} />
@@ -27,4 +34,4 @@
       </Typography>
     </ListItemText>
   </ListItemButton>
-</ListItem>
+<!-- </ListItem> -->

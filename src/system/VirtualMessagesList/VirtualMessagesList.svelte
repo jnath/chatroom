@@ -42,7 +42,6 @@
 	$: if (mounted && viewport) refresh(items, viewport_height, itemHeight);
 
 	async function refresh(items: T[], viewport_height: number, itemHeight?: number) {
-		console.log('refresh')
 		const { scrollTop } = viewport;
 
 		await tick(); // wait until the DOM is up to date
@@ -132,12 +131,12 @@
 		}
 
 
-    // console.log(viewport.scrollTop, viewport.scrollHeight)
 		// TODO if we overestimated the space these
 		// rows would occupy we may need to add some
 		// more. maybe we can just call handle_scroll again?
 	}
 
+  // eslint-disable-next-line no-undef
   export const scrollToIndex = async (index: number, opts?: ScrollToOptions) => {
 		const {scrollTop} = viewport;
 		const itemsDelta = index - start;
@@ -153,7 +152,6 @@
 	}
 
   export const scrollToBottom = async ()=>{
-		console.log(viewport.scrollTop, viewport.scrollHeight)
     viewport.scrollTo(0, viewport.scrollHeight)
 		await scrollToIndex(items.length -1)
   }

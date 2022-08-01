@@ -17,11 +17,15 @@
     binded.focus();
   }
 
-  $: {
-    if(mounted && selected){
-      binded.scrollIntoView();
-    }
+  export function scrollIntoView() {
+    binded.scrollIntoView();
   }
+
+  // $: {
+  //   if(mounted && selected){
+  //     binded.scrollIntoView();
+  //   }
+  // }
 
   onMount(()=>{
     mounted = true;

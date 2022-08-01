@@ -50,7 +50,6 @@
   $: if (mounted) forceRefresh();
 
   async function onChange(type: Type, newers: T[], olders: T[]) {
-    console.log('onchange', type)
     switch (type) {
       case Type.add: {
         const reachedTop = viewport?.scrollTop === 0
@@ -267,8 +266,9 @@
     viewport.scrollTo(0, top)
     await forceRefresh()
     if (viewport.scrollTop === 0) viewport.scrollTo(0, 1)
-    if (viewport.scrollHeight - viewport.scrollTop === viewport.clientHeight)
+    if (viewport.scrollHeight - viewport.scrollTop === viewport.clientHeight) {
       viewport.scrollTo(0, viewport.scrollTop - 1)
+    }
     searching = false
     return true
   }
@@ -330,11 +330,11 @@
       {#if loading && direction !== Direction.bottom}
         <slot name="loader" />
       {/if}
-      {#each visible as row (row.index)}
+      {#each visible as row, index (row.index) }
         <virtual-infinite-list-row
           id={uniqueKey && 'svelte-virtual-infinite-list-items-' + String(row.data[uniqueKey])}
         >
-          <slot name="item" item={row.data}>Template Not Found!!!</slot>
+          <slot name="item" item={row.data} index={start+index}>Template Not Found!!!</slot>
         </virtual-infinite-list-row>
       {/each}
       {#if loading && direction !== Direction.top}
@@ -352,13 +352,15 @@
 <style>
   virtual-infinite-list-viewport {
     display: flex;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     will-change: transform
   }
   virtual-infinite-list-contents{
     margin-top: auto;
+    flex-grow: 1;
   }
   virtual-infinite-list-contents,
   virtual-infinite-list-row {

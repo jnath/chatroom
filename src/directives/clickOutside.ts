@@ -8,11 +8,11 @@ export default function clickOutside(
     !event.defaultPrevented &&
     handler();
 
-  document.addEventListener('click', onClick, true);
+  document.addEventListener('mousedown', onClick, true);
 
   return {
     destroy() {
-      document.removeEventListener('click', onClick, true);
+      document.removeEventListener('mousedown', onClick, true);
     },
   };
 }

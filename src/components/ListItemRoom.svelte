@@ -12,9 +12,15 @@
   const onClick = ()=>{
     dispatch('select', { id })
   }
+
+  let binded: ListItemButton;
+  export function scrollIntoView() {
+    binded.scrollIntoView();
+  }
 </script>
 
 <ListItemButton
+  bind:this={binded}
   {selected}
   dense
   on:click={onClick}

@@ -1,10 +1,10 @@
+import type { DocumentReference } from "firebase/firestore";
 
 import { getAuth, updateEmail, updateProfile , type User } from 'firebase/auth'
 import { derived, get, writable, type Readable } from 'svelte/store'
 
 import { userConverter, UserData } from '$models/User'
 import { createStoreDoc, type StoreFirestoreDocument } from '$stores/firestore'
-import { DocumentReference, getFirestore } from "firebase/firestore";
 
 type MergedUser = {
   id: string;
@@ -26,7 +26,6 @@ export type StoredUser = Readable<MergedUser> & {
 
 export const getCurrentUser = (): StoredUser =>{
 
-  const firestore = getFirestore();
   const auth = getAuth();
   const user = auth.currentUser;
   if(!user){
@@ -34,7 +33,6 @@ export const getCurrentUser = (): StoredUser =>{
   }
 
   const firestoreUser: StoreFirestoreDocument<UserData> = createStoreDoc({
-    firestore,
     converter: userConverter,
     paths: ['users', user.uid]
   })

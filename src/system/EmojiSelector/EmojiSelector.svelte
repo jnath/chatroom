@@ -14,7 +14,7 @@
 	import { faCat, faCoffee, faFutbol, faHistory, faMusic } from '@fortawesome/free-solid-svg-icons';
 	import Icon from 'svelte-fa';
 
-	import { Tabs, Tab, TabList, TabPanel } from 'svelte-tabs';
+	import { Tabs, Tab, TabList, TabPanel } from '$system/Tabs';
 
 	import Button from '$system/Button';
 	import Popper from '$system/Popper';
@@ -100,7 +100,7 @@
 			variants = event.detail.variants;
 			variantsVisible = true;
 		} else {
-			dispatch('emoji', event.detail.emoji);
+			dispatch('emoji', event.detail);
 			saveRecent(event.detail);
 
 			if (autoClose) {
@@ -167,7 +167,7 @@
 				/>
 			{:else}
 				<div class="svelte-emoji-picker__emoji-tabs">
-					<Tabs initialSelectedIndex={1}>
+					<Tabs>
 						<TabList>
 							<Tab><Icon icon={faHistory} /></Tab>
 							{#each categoryOrder as category}

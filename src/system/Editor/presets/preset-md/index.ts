@@ -16,6 +16,10 @@ import {
     bulletList as bulletListRemove,
     orderedList as orderedListRemove,
     hr as hrRemove,
+    hardbreak as hardbreakRemove,
+    image as imageRemove,
+
+    // paragraph as paragraphConfigure,
 
     gfm,
 } from '@milkdown/preset-gfm';
@@ -32,6 +36,14 @@ gfm.remove(tableRemove);
 gfm.remove(bulletListRemove);
 gfm.remove(orderedListRemove);
 gfm.remove(hrRemove);
+gfm.remove(hardbreakRemove);
+gfm.remove(imageRemove)
+
+// gfm.configure(paragraphConfigure, {
+//     keymap:{
+//         'Text': 'Shift-Enter'
+//     }
+// })
 
 import { AtomList } from '@milkdown/utils';
 
@@ -51,7 +63,9 @@ import {
     link
 } from './mark/link';
 
-export { SupportedKeys } from './supported-keys';
+import { SupportedKeys } from './supported-keys';
+
+export { SupportedKeys }
 
 export {
     ToggleBulletList,
@@ -60,12 +74,9 @@ export {
     orderedList,
 };
 
-import plugins, { menuListenerCtx } from './plugin';
 
-export { menuListenerCtx };
 
-export const md = AtomList.create([
-    ...plugins,
+export const md: AtomList = AtomList.create([
     ...gfm,
 
     link(),

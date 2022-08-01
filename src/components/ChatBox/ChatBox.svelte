@@ -12,24 +12,23 @@
   import MessagesList from '$components/ChatBox/MessagesList.svelte';
   import { derived } from 'svelte/store';
   import Editor from '$system/Editor';
-import { tick } from 'svelte';
+import type { SendEventData } from '$system/Editor/Editor.svelte';
 
   export let roomId: string | undefined;
 
   let paginations: StoreFirestoreCollection<MessageData>[] = [];
 
-  let addMessage: (doc: MessageData) => Promise<void>;
+  let messageStore: StoreFirestoreCollection<MessageData>;
   let prevRoomId: string | undefined;
   $: {
     if(roomId && prevRoomId !== roomId) {
       const initNumberOfMessages = Math.ceil(document.body.offsetHeight / 60) + 5;
-      const init = createStoreCollection({
+      messageStore = createStoreCollection({
         converter: messageConverter,
         containtes: [orderBy('date', 'desc'), limit(initNumberOfMessages)],
         paths: ['rooms', roomId, 'messages']
       });
-      addMessage = init.add;
-      paginations = [init];
+      paginations = [messageStore];
     }
     prevRoomId = roomId;
   }
@@ -41,20 +40,20 @@ import { tick } from 'svelte';
 
   $: currentUser = getCurrentUser();
 
-  let textAreaEl: TextArea;
   let virtualList: MessagesList;
   let loading: boolean;
-  let input = '';
-  const sendMessage = async () => {
-    if(!input || !messages || !$currentUser){
+
+  const sendMessage = async (e: CustomEvent<SendEventData>) => {
+    const data = e.detail;
+    if(!messages || !$currentUser){
       return
     }
-    await addMessage(new MessageData({
-      text: input,
+    await messageStore.add(new MessageData({
+      text: data.text,
       date: Timestamp.now(),
       from: currentUser.getRef()
     }))
-    textAreaEl.reset();
+    data.sended();
     await virtualList.scrollToBottom();
   }
 
@@ -107,27 +106,10 @@ import { tick } from 'svelte';
       </svelte:fragment>
     </MessagesList>
   {/key}
-  <!-- <Editor options={{
-    initialEditType: 'wysiwyg',
-    hideModeSwitch: true,
-    toolbarItems:[
-      // ['heading'],
-      ['bold', 'italic', 'strike'],
-      ['link'],
-      ['ul', 'ol'],
-      ['quote'],
-      // ['task', 'indent', 'outdent'],
-      // ['table', 'image', 'link'],
-      ['code', 'codeblock'],
-    ]
-  }} /> -->
-
-  <Editor bind:showTextEditing />
-  <!-- <TextArea
-    bind:this={textAreaEl}
-    bind:value={input}
+  <Editor
     on:send={sendMessage}
-  /> -->
+    bind:showTextEditing
+  />
 {/if}
 
 <style lang="postcss">

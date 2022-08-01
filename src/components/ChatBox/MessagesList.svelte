@@ -81,6 +81,7 @@
     Loading...
   </div>
 </VirtualInfiniteList>
+
 <style land="postcss">
   /* .row {
     margin-top: 8px;

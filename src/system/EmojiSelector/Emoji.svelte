@@ -2,6 +2,7 @@
   import type { EmojiData } from './data';
 
   import { createEventDispatcher } from 'svelte';
+  import twemoji from 'twemoji';
 
   export let emoji: EmojiData;
 
@@ -30,7 +31,10 @@
   on:focus={onFocus}
   on:click={onClick}
 >
-  {emoji.emoji}
+  {@html twemoji.parse(emoji.emoji, {
+    folder: 'svg',
+    ext: '.svg',
+  })}
 </button>
 
 <style lang="postcss">

@@ -2,6 +2,7 @@ import { writable, type Subscriber, type Unsubscriber } from 'svelte/store';
 import {
   addDoc,
   collection,
+  CollectionReference,
   doc,
   DocumentReference,
   getFirestore,
@@ -18,7 +19,8 @@ import {
 export { orderBy, where, limit } from 'firebase/firestore';
 
 export type StoreFirestoreCollection<T> = SvelteStore<T[]> & {
-  add(doc: T): Promise<void>,
+  ref: CollectionReference<T>,
+  add(doc: T): Promise<DocumentReference<T>>,
   // next(): Promise<StoreFirestoreCollection<T>>
 };
 
@@ -122,12 +124,15 @@ export const createStoreCollection = <T>({converter, containtes = [], paths = []
         unsubscribe();
       }
     },
+
+    ref: collectionRef,
     // next,
-    async add(doc: T){
+    async add(doc: T): Promise<DocumentReference<T>>  {
       try {
-        await addDoc(collectionRef, doc);
+        return addDoc(collectionRef, doc);
       } catch (e) {
         console.error("Error adding document: ", e);
+        throw e
       }
     }
   }
