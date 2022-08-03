@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  export { commands, SupportedKeys } from './presets/preset-md';
+  export { commands, SupportedKeys } from '../presets/preset-md';
 </script>
 
 <script lang="ts">
@@ -17,12 +17,12 @@
     editorStateCtx
   } from '@milkdown/core';
 
-  import { md } from './presets/preset-md'
+  import { md } from '../presets/preset-md'
 
-  import theme from './theme';
+  import theme from '../theme';
   import { buttonStatus } from './stores/toolbar';
 
-  import { emoji } from './plugins/emoji';
+  import { emoji } from '../plugins/emoji';
   // import { upload } from './plugins/upload';
   import { upload } from './Attachements.svelte';
   import { history } from '@milkdown/plugin-history';
@@ -30,10 +30,10 @@
   import { listener, listenerCtx } from '@milkdown/plugin-listener';
   import { tooltip } from '@milkdown/plugin-tooltip';
 
-  import InputChips from '$system/Editor/InputChips.svelte';
-  import EmojiShortcut from '$system/Editor/EmojiShortcut.svelte';
-  import { menu, menuListenerCtx } from '$system/Editor/plugins/menu';
-  import { keyboard, keyboardListenerCtx } from '$system/Editor/plugins/keyboard';
+  import InputChips from './InputChips.svelte';
+  import EmojiShortcut from './EmojiShortcut.svelte';
+  import { menu, menuListenerCtx } from '../plugins/menu';
+  import { keyboard, keyboardListenerCtx } from '../plugins/keyboard';
 
   const dispatch = createEventDispatcher();
 

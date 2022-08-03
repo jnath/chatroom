@@ -15,9 +15,9 @@
 	let elements = new Set<(filePrepareList: FilePrepare[]) => void>();
 
 	export interface FileUploadResult {
-		src: string;
-		path: string;
 		name: string;
+		path: string;
+		src: string;
 	}
 
 	interface FilePrepareProgress {
@@ -31,8 +31,9 @@
 		progress: FilePrepareProgress;
 		del: ()=>Promise<void>;
     preview: ()=>Promise<string | ArrayBuffer | null>;
-    data: ()=>FileUploadResult | null;
-    upload: ()=>Promise<FileUploadResult | null>;
+    data: ()=>AttachementData | null;
+    getRef: ()=>DocumentReference<AttachementData> | null;
+    upload: ()=>Promise<AttachementData | null>;
   }
 
   function readFileAsync(file: File) {
@@ -52,11 +53,22 @@
 		});
 	}
 
+	const toDb = async (data: FileUploadResult) => {
+		const collectionRef = collection(getFirestore(), 'attachements').withConverter(attachementConverter);
+		const docRef = await addDoc<AttachementData>(collectionRef, {
+			...data,
+			date: Timestamp.now(),
+		});
+
+		return docRef;
+	}
+
 	export const uploadWithFilelist = (files: FileList)=>{
 		const fileprepare = Array.from(files).map((file: File): FilePrepare=>{
 			const uid = uuid.v4();
 			const fileRef = ref(storage, `attachements/${uid}_${file.name}`)
-			let data: FileUploadResult | null = null;
+			let fileDataRef: DocumentReference<AttachementData> | null = null;
+			let data: AttachementData | null = null;
 			let progress: FilePrepareProgress = {
 				started: false,
 				state: writable(''),
@@ -67,12 +79,17 @@
 				progress,
 				preview: ()=> readFileAsync(file),
 				del: async () => {
+					fileDataRef && await deleteDoc(fileDataRef);
+
 					await deleteObject(fileRef)
+				},
+				getRef(){
+					return fileDataRef;
 				},
 				data(){
 					return data;
 				},
-				upload: async (): Promise<FileUploadResult | null>=>{
+				upload: async (): Promise<AttachementData | null>=>{
 					return new Promise((resolve, reject)=>{
 
 						if(progress.started){
@@ -93,11 +110,17 @@
 							},
 							async () => {
 								const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-								data = {
+								data = new AttachementData({
+									src: downloadURL,
+									path: fileRef.fullPath,
+									name: file.name,
+									date: Timestamp.now()
+								})
+								fileDataRef = await toDb({
 									src: downloadURL,
 									path: fileRef.fullPath,
 									name: file.name
-								};
+								});
 								progress.state.set('success');
 								resolve(data);
 							}
@@ -113,28 +136,41 @@
 	}
 
 	const uploadWithData = (url: string)=>{
-		elements.forEach((fn) => fn([
-			{
-				name: url.substring(url.lastIndexOf('/')+1),
-				preview: ()=> Promise.resolve(url),
-				progress: {
-					started: true,
-					state: writable('success'),
-					percent: writable(100),
-				},
-				del: async ()=>{ return; },
-				data: ()=>({
-					src: url,
-					path: new URL(url).pathname,
-					name: url.substring(url.lastIndexOf('/')+1)
-				}),
-				upload: async ()=>({
-					src: url,
-					path: new URL(url).pathname,
-					name: url.substring(url.lastIndexOf('/')+1)
-				})
-			}
-		]));
+		elements.forEach((fn) => {
+			let fileDataRef: DocumentReference<AttachementData> | null = null;
+			let data: AttachementData | null = null;
+			let progress: FilePrepareProgress = {
+				started: false,
+				state: writable(''),
+				percent: writable(0),
+			};
+			return fn([
+				{
+					name: url.substring(url.lastIndexOf('/')+1),
+					preview: ()=> Promise.resolve(url),
+					progress,
+					del: async ()=>{
+						fileDataRef && await deleteDoc(fileDataRef);
+					},
+					getRef(){
+						return fileDataRef;
+					},
+					data(){
+						return data;
+					},
+					upload: async (): Promise<AttachementData | null>=>{
+						data = new AttachementData({
+							src: url,
+							path: new URL(url).pathname,
+							name: url.substring(url.lastIndexOf('/')+1)
+						});
+						fileDataRef = await toDb(data);
+						progress.state.set('success');
+						return data;
+					}
+				}
+			])
+		});
 	}
 
   export const uploadWithDataTransfer = (dataTransfer: DataTransfer)=>{
@@ -194,14 +230,14 @@
 		getStorage,
 		ref,
 	} from 'firebase/storage';
-	import AttachementFile from '$system/Editor/AttachementFile.svelte';
+	import AttachementFile from './AttachementFile.svelte';
 	import Image from '$system/Image';
+	import { addDoc, collection, deleteDoc, DocumentReference, getFirestore, Timestamp } from 'firebase/firestore';
+	import { attachementConverter, AttachementData } from '$models/Attachement';
 
   export let disabled = false;
 
 	storage = getStorage();
-
-	// export let attachements: FileUploadResult[] = [];
 
 	onMount(() => {
 		elements.add(add);
@@ -216,6 +252,10 @@
 
 	const files = writable<FilePrepare[]>([]);
 
+	export function reset(){
+		$files = [];
+	}
+
 	export function add(fileList: FilePrepare[]) {
 		fileList.forEach(f=>f.upload())
 		$files = $files.concat(fileList);
@@ -226,7 +266,7 @@
 	}
 
 	export let loaded: boolean;
-	export let attachements: FileUploadResult[] = [];
+	export let attachements: DocumentReference<AttachementData>[] = [];
 	$: allLoaded = derived<Writable<TaskState | "">[], boolean>(
     $files.map(file=>file.progress.state),
     ($states, set)=>{
@@ -237,14 +277,9 @@
 	$: {
 		loaded = $allLoaded;
 		if(loaded) {
-			attachements = $files.map((f) => f.data()).filter(notEmpty);
+			attachements = $files.map((f) => f.getRef()).filter(notEmpty);
 		}
 	}
-
-	// $: attachements = $allLoaded && $files.map((f) => f.data()).filter(notEmpty) || [];
-	// $: {
-	// 	attachements = $files.map((f) => f.data()).filter(notEmpty);
-	// }
 
 	const removeFile = async (index: number) => {
 		await $files[index].del();

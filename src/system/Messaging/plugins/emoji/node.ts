@@ -20,7 +20,7 @@ export type EmojiOptions = {
   maxListSize: number;
 };
 
-export const emojiNode = createNode<string, EmojiOptions>((utils, options) => {
+export const emojiNode = createNode<string>((utils) => {
   const getStyle = () =>
       utils.getStyle(
           ({ css }) => css`

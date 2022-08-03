@@ -6,7 +6,7 @@
   import PaperHeader from '$system/Paper/PaperHeader.svelte';
   import Popper from '$system/Popper';
 
-  import { listeners } from './theme';
+  import { listeners } from '../theme';
   import Form from '$system/Form';
   import Input from '$system/Input';
 import { onDestroy, onMount } from 'svelte';

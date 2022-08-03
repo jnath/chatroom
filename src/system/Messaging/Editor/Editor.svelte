@@ -1,32 +1,35 @@
 <script lang="ts" context="module">
   export interface SendEventData {
     text: string;
-    attachements: FileUploadResult[];
+    attachements: DocumentReference<AttachementData>[];
     sended:()=>void;
   }
 </script>
 <script lang="ts">
+  import type { AttachementData } from '$models/Attachement';
+  import type { DocumentReference } from 'firebase/firestore';
   import { createEventDispatcher } from 'svelte';
 
-  import Controls from '$system/Editor/Controls.svelte';
-  import Content, { SupportedKeys, commands } from '$system/Editor/Content.svelte';
-  import Toolbar, { type Cmd } from '$system/Editor/Toolbar.svelte';
+  import Controls from './Controls.svelte';
+  import Content, { SupportedKeys, commands } from './Content.svelte';
+  import Toolbar, { type Cmd } from './Toolbar.svelte';
   import Dialog from '$system/Dialog';
   import Form from '$system/Form';
   import Input from '$system/Input';
   import Button from '$system/Button';
   import { editorViewCtx, type Ctx } from '@milkdown/core';
   import twemoji from 'twemoji';
-  import Attachements, { uploadWithFilelist, type FileUploadResult } from '$system/Editor/Attachements.svelte';
+  import Attachements, { uploadWithFilelist } from './Attachements.svelte';
 
   const dispatch = createEventDispatcher();
 
   let content: Content;
   let ctx: Ctx;
+  let attachementElm: Attachements;
 
 
   export let contentValue = '';
-  let attachements: FileUploadResult[] = [];
+  let attachements: DocumentReference<AttachementData>[] = [];
   $:attachements;
 
   let attachementsLoaded: boolean;
@@ -72,6 +75,7 @@
       attachements,
       sended:()=>{
         content.reset();
+        attachementElm.reset();
         status = 'idle';
       }
     } as SendEventData);
@@ -160,6 +164,7 @@
     bind:value={contentValue}
   />
   <Attachements
+    bind:this={attachementElm}
     disabled={status !== 'idle'}
     bind:attachements
     bind:loaded={attachementsLoaded}
@@ -174,8 +179,6 @@
 </editor>
 
 <style lang="postcss">
-  /* @import './content.css'; */
-
   editor {
     display: flex;
     flex-direction: column;
@@ -190,43 +193,10 @@
     &.idle {
       pointer-events: auto;
     }
-    /* toolbar {
-      display: flex;
-      align-items: center;
-      padding: 0 8px;
-      background-color: var(--palette-primary-light);
-      color: var(--palette-primary-contrast);
-      border-radius: 4px 4px 0 0;
-      border: none;
-      height: 40px;
-      transition: all .25s ease-in-out;
-      overflow: hidden;
-
-      flex-shrink: 0;
-    } */
 
     &.closeFormating {
       transform: translateY(0);
       margin-bottom: 16px;
     }
-
-    /* controls {
-      display: flex;
-      padding: 4px;
-      align-items: center;
-
-      controls-right {
-        flex-shrink: 0;
-      }
-
-      controls-buttons {
-        flex-grow: 1;
-      }
-
-      controls-left {
-        flex-shrink: 0;
-        align-items: flex-end;
-      }
-    } */
   }
 </style>

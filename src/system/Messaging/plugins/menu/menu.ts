@@ -1,7 +1,7 @@
 import { createPlugin } from '@milkdown/utils';
 import { Plugin, PluginKey } from '@milkdown/prose/state';
-import hasMark from '$system/Editor/presets/preset-md/helpers/hasMark';
-import isActive from '$system/Editor/presets/preset-md/helpers/isActive';
+import hasMark from '$system/Messaging/presets/preset-md/helpers/hasMark';
+import isActive from '$system/Messaging/presets/preset-md/helpers/isActive';
 import ListenerManager, { type Activated } from './ListenerManager';
 import { createSlice } from '@milkdown/core';
 

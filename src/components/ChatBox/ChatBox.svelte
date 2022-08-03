@@ -1,4 +1,7 @@
 <script lang="ts">
+  import type { SendEventData } from '$system/Messaging/Editor/Editor.svelte';
+  import { derived } from 'svelte/store';
+
   import { createStoreCollection, orderBy, limit, type StoreFirestoreCollection } from '$stores/firestore';
 
   import { startAfter, Timestamp } from 'firebase/firestore';
@@ -7,12 +10,9 @@
 
   import { messageConverter, MessageData } from '$models/Message';
 
-  // import TextArea from '$components/TextArea';
   import Message from '$components/Message.svelte';
   import MessagesList from '$components/ChatBox/MessagesList.svelte';
-  import { derived } from 'svelte/store';
-  import Editor from '$system/Editor';
-import type { SendEventData } from '$system/Editor/Editor.svelte';
+  import Editor from '$system/Messaging/Editor';
 
   export let roomId: string | undefined;
 
@@ -48,11 +48,14 @@ import type { SendEventData } from '$system/Editor/Editor.svelte';
     if(!messages || !$currentUser){
       return
     }
+
     await messageStore.add(new MessageData({
       text: data.text,
+      attachements: data.attachements,
       date: Timestamp.now(),
       from: currentUser.getRef()
     }))
+
     data.sended();
     await virtualList.scrollToBottom();
   }
@@ -102,6 +105,7 @@ import type { SendEventData } from '$system/Editor/Editor.svelte';
           text={item.text}
           timestamp={item.date.seconds * 1000}
           from={item.from}
+          attachements={item.attachements}
         />
       </svelte:fragment>
     </MessagesList>

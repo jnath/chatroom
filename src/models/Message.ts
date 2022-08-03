@@ -1,4 +1,5 @@
 import type { UserData } from '$models/User';
+import type { AttachementData } from '$models/Attachement';
 import type {
   Timestamp,
   DocumentReference,
@@ -14,10 +15,13 @@ export class MessageData {
 
   public from: DocumentReference<UserData>;
 
+  public attachements: DocumentReference<AttachementData>[];
+
   constructor(data: DocumentData){
     this.text = data.text;
     this.date = data.date;
     this.from = data.from;
+    this.attachements = data.attachements;
   }
 }
 
@@ -27,7 +31,8 @@ export const messageConverter: FirestoreDataConverter<MessageData> = {
     return {
       text: data.text,
       date: data.date,
-      from: data.from
+      from: data.from,
+      attachements: data.attachements
     }
   },
   fromFirestore(snapshot, options) {

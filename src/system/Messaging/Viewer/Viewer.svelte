@@ -1,5 +1,11 @@
 <script lang="ts" context="module">
-  export { commands, SupportedKeys } from './presets/preset-md';
+  export { commands, SupportedKeys } from '../presets/preset-md';
+
+  export interface Attachement {
+    src: string;
+    name: string;
+  }
+
 </script>
 
 <script lang="ts">
@@ -15,14 +21,15 @@
 
   import {
     md,
-  } from './presets/preset-md'
+  } from '../presets/preset-md'
 
-  import theme from './theme';
+  import theme from '../theme';
 
-  import { emoji } from './plugins/emoji';
+  import { emoji } from '../plugins/emoji';
+  import Attachements from './Attachements.svelte';
 
   export let value: string;
-
+  export let attachements: Attachement[];
   let editor: Editor;
   let viewer: HTMLElement;
 
@@ -36,7 +43,7 @@
           ctx.set(rootCtx, viewer);
           ctx.set(defaultValueCtx, value);
           ctx.set(editorViewOptionsCtx, {
-            editable:()=>false
+            editable: ()=>false
           });
         })
         .use(theme)
@@ -50,3 +57,4 @@
 
 <viewer bind:this={viewer} />
 
+<Attachements bind:attachements />

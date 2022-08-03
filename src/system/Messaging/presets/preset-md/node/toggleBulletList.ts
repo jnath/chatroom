@@ -7,7 +7,7 @@ import { SupportedKeys } from '../supported-keys';
 import { editorViewCtx } from '@milkdown/core';
 
 import isActive from '../helpers/isActive';
-import chainTransactions from '$system/Editor/presets/preset-md/helpers/chainTransactions';
+import chainTransactions from '../helpers/chainTransactions';
 
 
 export const ToggleBulletList = createCmdKey('ToggleBulletList');

@@ -1,26 +1,47 @@
 <script lang="ts">
+  import type { Attachement } from '$system/Messaging/Viewer/Viewer.svelte';
+  import type { AttachementData } from '$models/Attachement';
+
   import type { UserData } from '$models/User';
   import Avatar from '$system/Avatar';
-import Viewer from '$system/Editor/Viewer.svelte';
+  import { Viewer } from '$system/Messaging';
   import Typography from '$system/Typography';
   import { onSnapshot, type DocumentReference } from 'firebase/firestore';
   import { onMount } from 'svelte';
 
   export let from: DocumentReference<UserData>;
   export let text: string;
+  export let attachements: DocumentReference<AttachementData>[];
   export let timestamp: number;
   export let isCurrentUser = false;
 
   let user: UserData | undefined = undefined;
+
+  let files: Record<number, AttachementData | undefined> = {};
+
   onMount(async ()=> {
     onSnapshot(from, (doc)=>{
       user = doc.data()
     })
+    attachements?.forEach((attachement, i)=>{
+      onSnapshot(attachement, (doc)=>{
+        console.log(doc.metadata.fromCache)
+        files = {
+          ...files,
+          [i]: doc.data()
+        };
+      })
+    })
   })
+
+  function notEmpty<T>(value: T | null | undefined): value is T {
+		return value !== null && value !== undefined;
+	}
+
+  $: attaches = Object.values(files).filter(notEmpty).map(({ src, name})=>({ src, name} as Attachement));
 </script>
 
-<div
-  class="Message"
+<message
   class:isCurrentUser
 >
   <Avatar size="md" username={user?.username} picture={user?.picture} />
@@ -33,13 +54,15 @@ import Viewer from '$system/Editor/Viewer.svelte';
         {new Intl.DateTimeFormat('fr-FR', { timeStyle: 'short', dateStyle:'medium' }).format(new Date(timestamp))}
       </Typography>
     </div>
-    <Viewer value={text} />
+    {#key text}
+      <Viewer value={text} attachements={attaches} />
+    {/key}
     <!-- <Typography variant="body2">{text}</Typography> -->
   </div>
-</div>
+</message>
 
 <style lang="postcss">
-  *.Message {
+  message {
     display: flex;
     flex-direction: row;
     margin: 8px 16px;
@@ -50,39 +73,11 @@ import Viewer from '$system/Editor/Viewer.svelte';
         display: flex;
         flex-direction: row;
         gap: 16px;
-        /* justify-content: space-between; */
       }
     }
     & > div {
       display: flex;
       flex-direction: column;
-      /* gap: 4px; */
     }
-    /* & > p {
-      background-color: rgb(228, 230, 235);
-      border-bottom-left-radius: 18px;
-      border-bottom-right-radius: 18px;
-      border-top-left-radius: 18px;
-      border-top-right-radius: 18px;
-      direction: ltr;
-      display: block;
-      font-size: 15px;
-      line-height: 20.1px;
-      overflow-wrap: break-word;
-      overflow-x: hidden;
-      overflow-y: hidden;
-      padding-bottom: 8px;
-      padding-left: 12px;
-      padding-right: 12px;
-      padding-top: 7px;
-      position: relative;
-      white-space: pre-wrap;
-      word-break: break-word;
-      -webkit-font-smoothing: antialiased;
-      color: rgb(5, 5, 5);
-      unicode-bidi: isolate;
-      white-space: pre-wrap;
-      width: fit-content;
-    } */
   }
 </style>

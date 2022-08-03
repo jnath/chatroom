@@ -22,8 +22,8 @@
 </script>
 
 <picture
-  style:--width="{width}px"
-  style:--height="{height}px"
+  style:--width="{width}{typeof width === 'number' ? 'px': ''}"
+  style:--height="{height}{typeof height === 'number' ? 'px': ''}"
 >
   {#if !loaded}
     <loader>

@@ -5,7 +5,7 @@
   import Paper from '$system/Paper';
   import Popper from '$system/Popper';
 
-  import { emojiListenerCtx } from './plugins/emoji';
+  import { emojiListenerCtx } from '../plugins/emoji';
   import type { Emoji } from 'node-emoji';
   import VirtualInfiniteList from '$system/VirtualInfiniteList';
   import ListItemButton from '$system/List/ListItemButton.svelte';

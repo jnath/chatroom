@@ -2,7 +2,7 @@
   import type { FirebaseApp } from 'firebase/app';
   import type { AuthError } from 'firebase/auth';
   import * as firebase from 'firebase/app';
-  import { initializeFirestore, type FirestoreSettings } from "firebase/firestore";
+  import { CACHE_SIZE_UNLIMITED, initializeFirestore, type FirestoreSettings } from "firebase/firestore";
 
   import { getNotificationsContext } from 'svelte-notifications';
 
@@ -40,6 +40,7 @@
   const firebaseApp: FirebaseApp = firebase.initializeApp(firebaseConfig);
 
   const firestoreSettings: FirestoreSettings & { useFetchStreams: boolean } = {
+    cacheSizeBytes: CACHE_SIZE_UNLIMITED,
     useFetchStreams: false, /* this might not be doing anything*/
     experimentalAutoDetectLongPolling: true /* This line fixed my issue*/
   };

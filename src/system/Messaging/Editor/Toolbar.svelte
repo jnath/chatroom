@@ -18,33 +18,16 @@
   import { SupportedKeys } from './Content.svelte';
 
   import { buttonStatus } from './stores/toolbar';
-  import ToolbarButton from '$system/Editor/ToolbarButton.svelte';
+  import ToolbarButton from './ToolbarButton.svelte';
 
   export let hidden = false;
   export let disabled = false;
 
   const dispatch = createEventDispatcher();
 
-  // const linkValue = async ()=>{
-  //   return new Promise((resolve)=>{
-  //     dispatch('prompt', {
-  //       promptTemplate: 'link',
-  //       callback:resolve
-  //     })
-  //   })
-  //   // return prompt('Enter the URL');
-  // }
-
-  // const selectToolButton = <T,>(cmd: { command: CmdKey<T>, payload?: T | unknown}) => async (e: CustomEvent) => {
   const selectToolButton = (cmd: Cmd) => async (e: CustomEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // let payload
-    // if(typeof cmd.payload === 'function'){
-    //   payload = await cmd.payload();
-    // }else{
-    //   payload = cmd.payload;
-    // }
     dispatch('select',cmd);
   }
 </script>
@@ -86,7 +69,6 @@
     on:click={selectToolButton({
       command: SupportedKeys.ToggleLink,
       actived: $buttonStatus['link']?.activated
-      // payload: $buttonStatus['link']?.activated ? undefined : linkValue
     })}
     hightlight={$buttonStatus['link']?.activated}
   >
