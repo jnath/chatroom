@@ -92,7 +92,7 @@
   {#key roomId}
     <MessagesList
       bind:this={virtualList}
-      messages={[...$messages].reverse()}
+      items={[...$messages].reverse()}
       on:infinite={morePreviousMessage}
       bind:loading
       bind:paddingListBottom
