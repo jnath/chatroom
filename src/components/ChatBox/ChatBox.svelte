@@ -97,7 +97,6 @@
       bind:loading
       bind:paddingListBottom
     >
-      <!-- <div slot="loader">Loading</div> -->
       <svelte:fragment slot="item" let:item>
         <Message
           isCurrentUser={item.from.id === $currentUser.id}

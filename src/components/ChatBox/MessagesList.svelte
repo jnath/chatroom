@@ -42,7 +42,7 @@
     if(isBottom && items.length){
       setTimeout(() => {
         virtualInfiniteList.scrollToBottom()
-      }, 100);
+      }, 300);
     }
   }
 
@@ -83,23 +83,6 @@
 </VirtualInfiniteList>
 
 <style land="postcss">
-  /* .row {
-    margin-top: 8px;
-    margin-bottom: 8px;
-    overflow-wrap: break-word;
-		display: flex;
-		flex-direction: column;
-		border-bottom: medium dotted #f0f0f0;
-		align-items: center;
-		justify-content: center;
-  } */
-
-	/* .virtual-list {
-		margin-top: 8px;
-		border-top: medium solid #f0f0f0;
-		border-bottom: medium solid #f0f0f0;
-    flex-grow: 1;
-	} */
 
 	.loader {
 		justify-content: center;
