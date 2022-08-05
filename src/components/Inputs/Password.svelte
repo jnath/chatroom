@@ -1,14 +1,14 @@
 <script lang="ts">
   import Input, { passwordValid, Hint } from '$system/Input';
 
-  export let value: string;
+  export let value = '';
   export let name: string;
 
   export let required = false;
 </script>
 
 <Input
-  bind:value={value}
+  bind:value
   type="password"
   {name}
   label="Password"

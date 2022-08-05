@@ -6,7 +6,7 @@
   import Avatar from '$system/Avatar';
   import { Viewer } from '$system/Messaging';
   import Typography from '$system/Typography';
-  import { onSnapshot, type DocumentReference } from 'firebase/firestore';
+  import { getDoc, getDocFromCache, getDocFromServer, onSnapshot, type DocumentReference } from 'firebase/firestore';
   import { onMount } from 'svelte';
 
   export let from: DocumentReference<UserData>;
@@ -20,18 +20,29 @@
   let files: Record<number, AttachementData | undefined> = {};
 
   onMount(async ()=> {
-    onSnapshot(from, (doc)=>{
-      user = doc.data()
+    try {
+      user = (await getDocFromCache(from)).data()
+    } catch (error) {
+      user = (await getDocFromServer(from)).data()
+    }
+
+    attachements?.forEach(async (attachement, i)=>{
+      if(files[i]) return;
+      let data;
+      try {
+        data = (await getDocFromCache(attachement)).data()
+      } catch (error) {
+        data = (await getDocFromServer(attachement)).data()
+      }
+      files = {
+        ...files,
+        [i]: data
+      };
     })
-    attachements?.forEach((attachement, i)=>{
-      onSnapshot(attachement, (doc)=>{
-        console.log(doc.metadata.fromCache)
-        files = {
-          ...files,
-          [i]: doc.data()
-        };
-      })
-    })
+
+    return ()=>{
+      files = {};
+    }
   })
 
   function notEmpty<T>(value: T | null | undefined): value is T {

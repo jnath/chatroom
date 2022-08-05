@@ -1,14 +1,14 @@
 <script lang="ts">
   import Input, { Hint, email } from '$system/Input';
 
-  export let value: string;
+  export let value = '';
   export let name: string;
 
   export let required = false;
 
 </script>
 <Input
-  bind:value={value}
+  bind:value
   type="email"
   {name}
   {required}

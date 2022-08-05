@@ -56,7 +56,7 @@
       from: currentUser.getRef()
     }))
 
-    data.sended();
+    await data.sended();
     await virtualList.scrollToBottom();
   }
 
@@ -92,15 +92,14 @@
   {#key roomId}
     <MessagesList
       bind:this={virtualList}
-      items={[...$messages].reverse()}
+      messages={[...$messages].reverse()}
       on:infinite={morePreviousMessage}
       bind:loading
       bind:paddingListBottom
     >
-      <div slot="loader">Loading</div>
+      <!-- <div slot="loader">Loading</div> -->
       <svelte:fragment slot="item" let:item>
         <Message
-          slot="item"
           isCurrentUser={item.from.id === $currentUser.id}
           text={item.text}
           timestamp={item.date.seconds * 1000}

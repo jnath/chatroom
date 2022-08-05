@@ -5,7 +5,7 @@
     minLength as minLengthValidator
   } from '$system/Input';
 
-  export let value: string;
+  export let value = '';
   export let name: string;
 
   export let required = false;
@@ -16,7 +16,7 @@
 
 </script>
 <Input
-  bind:value={value}
+  bind:value
   type="text"
   {name}
   autocomplete="nickname"

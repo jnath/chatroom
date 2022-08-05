@@ -6,6 +6,8 @@
     name: string;
   }
 
+  const cache: Record<string, string> = {};
+
 </script>
 
 <script lang="ts">
@@ -30,31 +32,39 @@
 
   export let value: string;
   export let attachements: Attachement[];
-  let editor: Editor;
   let viewer: HTMLElement;
 
   let ctx: Ctx;
 
   onMount(async () => {
-    editor = await (
-      Editor.make()
-        .config((_ctx) => {
-          ctx = _ctx;
-          ctx.set(rootCtx, viewer);
-          ctx.set(defaultValueCtx, value);
-          ctx.set(editorViewOptionsCtx, {
-            editable: ()=>false
-          });
-        })
-        .use(theme)
-        .use(md)
-        .use(emoji)
-        .create()
-        );
+    if(!cache[value]){
+      cache[value] = '';
+      await (
+        Editor.make()
+          .config((_ctx) => {
+            ctx = _ctx;
+            ctx.set(rootCtx, viewer);
+            ctx.set(defaultValueCtx, value);
+            ctx.set(editorViewOptionsCtx, {
+              editable: ()=>false
+            });
+          })
+          .use(theme)
+          .use(md)
+          .use(emoji)
+          .create()
+          );
+      cache[value] = viewer.innerHTML;
+    }
   });
 
+  $: text = cache[value];
 </script>
 
-<viewer bind:this={viewer} />
+<viewer bind:this={viewer} >
+  {#if text}
+    {@html text}
+  {/if}
+</viewer>
 
 <Attachements bind:attachements />

@@ -14,7 +14,7 @@
   const sendMessages = ()=> dispatch('sendMessages');
 
   let input: HTMLInputElement;
-  export let files: FileList;
+  export let files: FileList | null = null;
   export let disabled = false;
 
 </script>

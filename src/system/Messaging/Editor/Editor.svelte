@@ -2,7 +2,7 @@
   export interface SendEventData {
     text: string;
     attachements: DocumentReference<AttachementData>[];
-    sended:()=>void;
+    sended:()=>Promise<void>;
   }
 </script>
 <script lang="ts">
@@ -24,7 +24,7 @@
   const dispatch = createEventDispatcher();
 
   let content: Content;
-  let ctx: Ctx;
+  let ctx: Ctx | null = null;
   let attachementElm: Attachements;
 
 
@@ -41,6 +41,8 @@
 
 
   const onEmojiSelected = ({detail: emoji}: CustomEvent) => {
+    if(!ctx) return;
+
     const editorView = ctx.get(editorViewCtx);
 
     const { from } = editorView.state.selection
@@ -73,9 +75,9 @@
     dispatch('send', {
       text: contentValue,
       attachements,
-      sended:()=>{
-        content.reset();
-        attachementElm.reset();
+      sended: async ()=>{
+        await content.reset();
+        await attachementElm.reset();
         status = 'idle';
       }
     } as SendEventData);
@@ -133,7 +135,7 @@
 
     await content.command(command);
   }
-  let files: FileList;
+  let files: FileList | null = null;
   $: {
     files && uploadWithFilelist(files);
   }

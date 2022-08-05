@@ -23,7 +23,6 @@
   import { buttonStatus } from './stores/toolbar';
 
   import { emoji } from '../plugins/emoji';
-  // import { upload } from './plugins/upload';
   import { upload } from './Attachements.svelte';
   import { history } from '@milkdown/plugin-history';
   import { clipboard } from '@milkdown/plugin-clipboard';
@@ -43,7 +42,7 @@
   let editor: Editor;
   let content: HTMLElement;
 
-  export let ctx: Ctx;
+  export let ctx: Ctx | null = null;
 
   onMount(async () => {
     editor = await (
@@ -90,6 +89,8 @@
   })
 
   export async function reset(){
+    if(!ctx) return;
+
     const editorView = ctx.get(editorViewCtx);
     const state = editor.ctx.get(editorStateCtx);
     editorView.dispatch(state.tr.deleteRange(0, state.doc.content.size));

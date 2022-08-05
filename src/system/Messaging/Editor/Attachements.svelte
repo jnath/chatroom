@@ -97,7 +97,10 @@
 							return null;
 						}
 						progress.started = true;
-						const uploadTask = uploadBytesResumable(fileRef, file, {contentType: 'image/png'});
+						const uploadTask = uploadBytesResumable(fileRef, file, {
+							cacheControl: 'public,max-age=300',
+							contentType: 'image/jpeg'
+						});
 						uploadTask.on(
 							'state_changed',
 							({bytesTransferred, totalBytes, state})=>{
@@ -252,7 +255,7 @@
 
 	const files = writable<FilePrepare[]>([]);
 
-	export function reset(){
+	export async function reset(){
 		$files = [];
 	}
 

@@ -1,7 +1,6 @@
 import {
   Ctx,
   emotionCtx,
-  // internalThemeKeys,
   ThemeEnvironmentReady,
   ThemeGlobal, ThemeIcon, ThemeManager, themeManagerCtx, ThemeReady, type IconValue, type MilkdownPlugin, type ThemeSliceKey
 } from '@milkdown/core';
@@ -25,13 +24,6 @@ export const themeFactory = (createThemePack?: CreateThemePack): ThemePlugin => 
     themeManager.setExecutor(() => {
       createThemePack?.(ctx, themeManager);
       overrideFn?.(ctx, themeManager);
-
-      // internalThemeKeys.forEach((key) => {
-      //   if (!themeManager.has(key as ThemeSliceKey)) {
-      //     console.warn('Theme key not found: ', key.sliceName);
-      //   }
-      // });
-
       themeManager.get(ThemeGlobal, undefined);
     });
 

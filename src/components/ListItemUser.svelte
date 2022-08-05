@@ -21,7 +21,6 @@
   <ListItemButton
     bind:this={binded}
     on:click
-    data-id={id}
   >
     <ListItemAvatar>
       <Avatar size="xs" {username} {picture} {online} />

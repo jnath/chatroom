@@ -20,7 +20,7 @@
     <label for={name}>{label}</label>
   {/if}
   <input
-    bind:value={value}
+    bind:value
     id={name}
     {name}
     {placeholder}
