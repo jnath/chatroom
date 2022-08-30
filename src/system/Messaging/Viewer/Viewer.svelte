@@ -31,7 +31,7 @@
   import Attachements from './Attachements.svelte';
 
   export let value: string;
-  export let attachements: Attachement[];
+  export let attachements: Attachement[] | null;
   let viewer: HTMLElement;
 
   let ctx: Ctx;

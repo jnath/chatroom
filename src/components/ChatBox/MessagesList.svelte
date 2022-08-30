@@ -6,6 +6,7 @@
   import type { MessageData } from '$models/Message';
 
   export let items: MessageData[] = [];
+  let itemsTmp: MessageData[] = [];
   export let loading = true
   export let paddingListBottom = 0;
   let start: number;
@@ -42,12 +43,15 @@
     if(isBottom && items.length){
       setTimeout(() => {
         virtualInfiniteList.scrollToBottom()
-      }, 300);
+      }, 100);
     }
   }
 
   onMount(async () => {
-    loading = false
+    loading = false;
+    itemsTmp = [...items];
+    await tick();
+    virtualInfiniteList.scrollToBottom();
   })
 
   // $: paddingListBottom = showTextEditing ? 24 : 0;
@@ -62,7 +66,7 @@
 <VirtualInfiniteList
   direction={Direction.top}
   {loading}
-  {items}
+  items={itemsTmp}
   persists={0}
   uniqueKey={'id'}
   on:initialize={onInitialize}

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createEventDispatcher, onDestroy, onMount, tick } from 'svelte'
+  import { afterUpdate, createEventDispatcher, onDestroy, onMount, tick } from 'svelte'
   import { store } from './store'
   import { Type, Direction } from './constant'
   import { getFirstItemMarginTop, getLoaderHeight } from './util'
@@ -29,7 +29,7 @@
   export let end = 0
   // local state
   let heightMap: number[] = []
-  let rows: HTMLDivElement[]
+  let rows: HTMLDivElement[] = [];
   let viewport: HTMLElement;
   let contents: HTMLElement;
   let viewportHeight = 0
@@ -132,13 +132,13 @@
     heightMap.length = items.length
   }
 
-  let ref: ReturnType<typeof setTimeout> | null;
+  // let ref: ReturnType<typeof setTimeout> | null;
   async function handleScroll() {
-    if(ref) clearTimeout(ref);
-    ref = setTimeout(async () => {
+    // if(ref) clearTimeout(ref);
+    // ref = setTimeout(async () => {
       await handleScrollRender();
-      ref = null;
-    }, 0);
+      // ref = null;
+    // }, 0);
   }
 
   async function handleScrollRender() {
@@ -306,12 +306,16 @@
   }
   // trigger initial refresh
   onMount(() => {
-    rows = contents.getElementsByTagName('virtual-infinite-list-row')  as unknown as HTMLDivElement[];
-    viewport.addEventListener('scroll', onScroll, { passive: false })
+    // rows = contents.getElementsByTagName('virtual-infinite-list-row')  as unknown as HTMLDivElement[];
+    viewport.addEventListener('scroll', onScroll, { passive: true })
     mounted = true;
+    return ()=>{
+      viewport.removeEventListener('scroll', onScroll);
+    }
   })
-  onDestroy(() => {
-    viewport.removeEventListener('scroll', onScroll)
+
+  afterUpdate(()=>{
+    rows = contents.getElementsByTagName('virtual-infinite-list-row')  as unknown as HTMLDivElement[];
   })
 </script>
 

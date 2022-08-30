@@ -3,10 +3,9 @@
   import ListItemButton from '$system/List/ListItemButton.svelte';
   import ListItemText from '$system/List/ListItemText.svelte';
   import ListItemAvatar from '$system/List/ListItemAvatar.svelte';
-  import ListItem from '$system/List/ListItem.svelte';
   import Typography from '$system/Typography';
 
-  export let id: string;
+  // export let id: string;
   export let picture: string;
   export let username: string;
   export let online = false;

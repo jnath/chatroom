@@ -13,8 +13,7 @@
 	import AttachementFile from './AttachementFile.svelte';
 	import Image from '$system/Image';
 
-	export let attachements: Attachement[];
-
+	export let attachements: Attachement[] | null;
 
 	let selectedFile: Attachement | undefined;
 	$: selectedFile;
@@ -31,7 +30,7 @@
 
 </script>
 
-{#if attachements.length}
+{#if attachements}
 	<Modal open={!!selectedFile} on:close={onFileClose}>
 		<Paper elevation={3}>
 			<PaperHeader on:close={onFileClose} title={selectedFile?.name || ''}>

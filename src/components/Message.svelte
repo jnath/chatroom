@@ -6,7 +6,7 @@
   import Avatar from '$system/Avatar';
   import { Viewer } from '$system/Messaging';
   import Typography from '$system/Typography';
-  import { getDoc, getDocFromCache, getDocFromServer, onSnapshot, type DocumentReference } from 'firebase/firestore';
+  import { getDocFromCache, getDocFromServer, type DocumentReference } from 'firebase/firestore';
   import { onMount } from 'svelte';
 
   export let from: DocumentReference<UserData>;
@@ -18,6 +18,7 @@
   let user: UserData | undefined = undefined;
 
   let files: Record<number, AttachementData | undefined> = {};
+  $: hasFiles = attachements && attachements.length;
 
   onMount(async ()=> {
     try {
@@ -49,7 +50,7 @@
 		return value !== null && value !== undefined;
 	}
 
-  $: attaches = Object.values(files).filter(notEmpty).map(({ src, name})=>({ src, name} as Attachement));
+  $: attaches = hasFiles && Object.values(files).filter(notEmpty).map(({ src, name})=>({ src, name} as Attachement)) || null;
 </script>
 
 <message
