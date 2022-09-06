@@ -92,7 +92,6 @@
   let isScrolling = false;
 
   const onMounted = debounce(async ()=>{
-    console.log(isScrolling)
     if(!isScrolling){
       await virtualList.scrollToBottom();
     }

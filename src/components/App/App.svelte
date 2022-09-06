@@ -19,10 +19,12 @@
   import NavHeader from '$components/NavHeader';
   import Typography from '$system/Typography';
   import ChatBox from '$components/ChatBox';
-import { oneOnOneConverter } from '$models/OneOnOne';
-import { DocumentReference, getDocFromCache, getDocFromServer } from 'firebase/firestore';
-import Spinner from '$system/Spinner';
-import type { UserData } from '$models/User';
+  import { oneOnOneConverter } from '$models/OneOnOne';
+  import { DocumentReference, getDocFromCache, getDocFromServer } from 'firebase/firestore';
+  import Spinner from '$system/Spinner';
+  import type { UserData } from '$models/User';
+import Avatar from '$system/Avatar';
+
   const currentUserStore = getCurrentUser();
   $: currentUser = currentUserStore;
 
@@ -72,32 +74,52 @@ import type { UserData } from '$models/User';
   }))
     .filter(notEmpty)
 
-  let selectedRoomId: string | undefined;
-  $: selectedRoomId;
+  let selectedId: string | undefined;
+  $: selectedId;
 
-  let selectedTypeMessage: string | undefined = 'rooms';
-  $: selectedTypeMessage;
+  let selectedType: string | undefined = 'rooms';
+  $: selectedType;
 
   const onSelectRoom = ({ detail: { id }}: CustomEvent<{id: string}>) => {
-    selectedTypeMessage = 'rooms',
-    selectedRoomId = id
+    selectedType = 'rooms',
+    selectedId = id
   };
   const onSelectOneOnOne = ({ detail: { id }}: CustomEvent<{id: string}>) => {
-    selectedTypeMessage = 'one-on-one';
-    selectedRoomId = id;
+    selectedType = 'one-on-one';
+    selectedId = id;
   }
 
   $: {
-    if(!selectedRoomId) {
-      selectedRoomId = rooms?.[0]?.id;
+    if(!selectedId) {
+      selectedId = rooms?.[0]?.id;
     }
   };
+
+  let title = '';
+  let titleAvatarUser: UserData | undefined;
+
+  $: {
+    if(selectedType === 'rooms'){
+      title = `# ${rooms.find((room)=>room.id === selectedId)?.title}` || '';
+    } else if( selectedType === 'one-on-one') {
+      const from = oneOnOneUsers?.find((pm)=>pm.from.id !== selectedId)?.from;
+      if(from){
+        getUser(from).then((user)=>{
+          titleAvatarUser = user;
+          title = user?.username || '';
+        })
+      }
+    }
+  }
 </script>
 
 {#if $currentUser}
   <div class="wrapper">
     <header>
-      <Typography variant="headline5"># {rooms.find((room)=>room.id === selectedRoomId)?.title}</Typography>
+      {#if selectedType === 'one-on-one' && titleAvatarUser}
+        <Avatar size="xs" {...titleAvatarUser} />
+      {/if}
+      <Typography variant="headline5">{title}</Typography>
     </header>
     <nav>
       <NavHeader {currentUser} />
@@ -109,7 +131,7 @@ import type { UserData } from '$models/User';
               <ListItemRoom
                 id={room.id}
                 title={room.title}
-                selected={selectedRoomId === room.id}
+                selected={selectedId === room.id}
                 on:select={onSelectRoom}
               />
             {/each}
@@ -139,7 +161,7 @@ import type { UserData } from '$models/User';
       </div>
     </nav>
     <main class="content">
-      <ChatBox type={selectedTypeMessage} id={selectedRoomId} />
+      <ChatBox type={selectedType} id={selectedId} />
     </main>
     <aside></aside>
     <footer></footer>
@@ -176,7 +198,8 @@ import type { UserData } from '$models/User';
     padding: 16px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 16px;
   }
   nav {
     display: flex;

@@ -5,7 +5,6 @@
 
   const config = (v: HTMLElement)=>Editor.make()
     .config((ctx) => {
-      console.log('ctx')
       ctx.set(rootCtx, v);
       ctx.set(defaultValueCtx, '');
       ctx.set(editorViewOptionsCtx, {
