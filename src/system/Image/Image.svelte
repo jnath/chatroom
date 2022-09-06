@@ -1,6 +1,6 @@
 <script lang="ts">
   import CircleProgressBar from '$system/ProgressBar';
-
+  import IntersectionObserver from '$system/tools/IntersectionObserver';
 
   export let src: string;
   export let title: string;
@@ -18,27 +18,32 @@
     imgHeight = target?.height || 0;
     loaded = true;
   }
-
+  let elm: HTMLPictureElement;
 </script>
 
-<picture
-  style:--width="{width}{typeof width === 'number' ? 'px': ''}"
-  style:--height="{height}{typeof height === 'number' ? 'px': ''}"
->
-  {#if !loaded}
-    <loader>
-      <CircleProgressBar wait />
-    </loader>
-  {/if}
-  <img
-    {src}
-    {title}
-    width={imgWidth}
-    height={imgHeight}
-    alt={title}
-    on:load={finish}
-  />
-</picture>
+<IntersectionObserver once element={elm} let:intersecting>
+  <picture
+    bind:this={elm}
+    style:--width="{width}{typeof width === 'number' ? 'px': ''}"
+    style:--height="{height}{typeof height === 'number' ? 'px': ''}"
+  >
+    {#if !loaded}
+      <loader>
+        <CircleProgressBar wait />
+      </loader>
+    {/if}
+    {#if intersecting}
+      <img
+        {src}
+        {title}
+        width={imgWidth}
+        height={imgHeight}
+        alt={title}
+        on:load={finish}
+      />
+    {/if}
+  </picture>
+</IntersectionObserver>
 
 <style lang="postcss">
   picture {

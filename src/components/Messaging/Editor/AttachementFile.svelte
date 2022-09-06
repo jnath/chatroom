@@ -72,7 +72,7 @@
 
 <style lang="postcss">
 
-	@import '../../styles/mixin.css';
+	@import '../../../system/styles/mixin.css';
 
   file {
     display: flex;

@@ -98,7 +98,7 @@
 						}
 						progress.started = true;
 						const uploadTask = uploadBytesResumable(fileRef, file, {
-							cacheControl: 'public,max-age=300',
+							cacheControl: 'public,max-age=604800',
 							contentType: 'image/jpeg'
 						});
 						uploadTask.on(

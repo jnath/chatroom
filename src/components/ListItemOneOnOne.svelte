@@ -4,12 +4,18 @@
   import ListItemText from '$system/List/ListItemText.svelte';
   import ListItemAvatar from '$system/List/ListItemAvatar.svelte';
   import Typography from '$system/Typography';
+  import { createEventDispatcher } from 'svelte';
 
-  // export let id: string;
+  export let id: string;
   export let picture: string;
   export let username: string;
   export let online = false;
 
+  const dispatch = createEventDispatcher();
+
+  const onClick = ()=>{
+    dispatch('select', { id })
+  }
   let binded: ListItemButton;
   export function scrollIntoView() {
     binded.scrollIntoView();
@@ -19,7 +25,8 @@
 <!-- <ListItem data-id={id}> -->
   <ListItemButton
     bind:this={binded}
-    on:click
+    on:click={onClick}
+    on:touchstart={onClick}
   >
     <ListItemAvatar>
       <Avatar size="xs" {username} {picture} {online} />

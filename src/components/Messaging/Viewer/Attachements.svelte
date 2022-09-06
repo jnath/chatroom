@@ -42,16 +42,17 @@
 			</PaperHeader>
 		</Paper>
 	</Modal>
-	<files
-  >
-		{#if attachements}
-			{#each attachements as file, index}
-				<AttachementFile {file}
-					on:preview={() => onFileClick(file)}
-				/>
-			{/each}
-		{/if}
-	</files>
+	<attachements>
+		<files>
+			{#if attachements}
+				{#each attachements as file, index}
+					<AttachementFile {file}
+						on:preview={() => onFileClick(file)}
+					/>
+				{/each}
+			{/if}
+		</files>
+	</attachements>
 {/if}
 
 <style lang="postcss">
@@ -65,9 +66,16 @@
 		background-color: grey;
 		overflow: hidden;
 	}
+	attachements {
+    flex: 1;
+    display: flex;
+    overflow: auto;
+	}
 	files {
 		display: flex;
 		gap: 16px;
 		padding: 8px 8px 0 8px;
+		height: 70px;
+		min-width: min-content;
 	}
 </style>

@@ -3,16 +3,17 @@
   import { createEventDispatcher } from 'svelte';
 
   import Image from '$system/Image';
+	import { getImageKitUrl } from '$helpers/imageKit';
 
   const dispatch = createEventDispatcher();
 
   export let file: Attachement;
-
+	$: thumbnail = `${getImageKitUrl(file.src)}?tr=w-50`
 </script>
 
 <file>
   <file-image on:click={()=> dispatch('preview')} >
-    <Image src={file.src} title={file.name} />
+    <Image src={thumbnail} title={file.name} />
   </file-image>
   <file-name title={file.name}>{file.name}</file-name>
 </file>
@@ -20,7 +21,7 @@
 
 <style lang="postcss">
 
-	@import '../../styles/mixin.css';
+	@import '../../../system/styles/mixin.css';
 
   file {
     display: flex;

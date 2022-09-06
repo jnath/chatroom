@@ -3,6 +3,7 @@
   import { store } from './store'
   import { Type, Direction } from './constant'
   import { getFirstItemMarginTop, getLoaderHeight } from './util'
+import { debounce } from '$helpers/debounce';
   const dispatch = createEventDispatcher()
 
   const { load, type, changes, reset: rs } = store();
@@ -121,7 +122,7 @@
         await tick() // render the newly visible row
         row = rows[i - start]
       }
-      const rowHeight = (heightMap[i] = itemHeight || row.offsetHeight)
+      const rowHeight = (heightMap[i] = itemHeight || row?.offsetHeight || 100)
       contentHeight += rowHeight
       i += 1
     }
@@ -304,13 +305,19 @@
     }
     return { found: false, top: 0, itemRect: undefined }
   }
+
+  const onWheel = ()=>{
+    dispatch('wheel')
+  }
   // trigger initial refresh
   onMount(() => {
     // rows = contents.getElementsByTagName('virtual-infinite-list-row')  as unknown as HTMLDivElement[];
     viewport.addEventListener('scroll', onScroll, { passive: true })
+    viewport.addEventListener('wheel', onWheel)
     mounted = true;
     return ()=>{
       viewport.removeEventListener('scroll', onScroll);
+      viewport.removeEventListener('wheel', onWheel)
     }
   })
 
@@ -363,6 +370,7 @@
     will-change: transform
   }
   virtual-infinite-list-contents{
+    overflow: hidden;
     margin-top: auto;
     flex-grow: 1;
   }

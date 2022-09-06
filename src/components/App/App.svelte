@@ -6,13 +6,12 @@
   } from '$stores/firestore';
 
   import { roomConverter } from '$models/Room';
-  import { userConverter } from '$models/User';
 
   import List from '$system/List/List.svelte';
 
   import NavContainer from '$components/NavContainer';
   import ListItemRoom from '$components/ListItemRoom.svelte';
-  import ListItemUser from '$components/ListItemUser.svelte';
+  import ListItemUser from '$components/ListItemOneOnOne.svelte';
 
   import { getCurrentUser } from '$stores/currentUser';
   import Divider from '$system/Divider';
@@ -20,8 +19,12 @@
   import NavHeader from '$components/NavHeader';
   import Typography from '$system/Typography';
   import ChatBox from '$components/ChatBox';
-
-  $: currentUser = getCurrentUser();
+import { oneOnOneConverter } from '$models/OneOnOne';
+import { DocumentReference, getDocFromCache, getDocFromServer } from 'firebase/firestore';
+import Spinner from '$system/Spinner';
+import type { UserData } from '$models/User';
+  const currentUserStore = getCurrentUser();
+  $: currentUser = currentUserStore;
 
   const roomsOrdered = createStoreCollection({
     converter: roomConverter,
@@ -37,16 +40,52 @@
 
   $: rooms = [...$roomsOrdered || [], ...$roomsUnordered || []];
 
-  $: users = $currentUser && createStoreCollection({
-    converter: userConverter,
-    containtes: [where('id', '!=', $currentUser.id)],
-    paths: 'users'
+  // $: users = $currentUser && createStoreCollection({
+  //   converter: userConverter,
+  //   containtes: [where('id', '!=', $currentUser.id)],
+  //   paths: 'users'
+  // });
+
+  $: oneOnOne = $currentUser && createStoreCollection({
+    converter: oneOnOneConverter,
+    containtes: [where('users', 'array-contains', currentUserStore.getRef())],
+    paths: 'one-on-one'
   });
+
+  const getUser = async (from: DocumentReference<UserData>)=>{
+    let user;
+    try {
+      user = (await getDocFromCache(from)).data()
+    } catch (error) {
+      user = (await getDocFromServer(from)).data()
+    }
+    return user;
+  }
+
+  function notEmpty<T>(value: T | null | undefined): value is T {
+		return value !== null && value !== undefined;
+	}
+
+  $: oneOnOneUsers = $oneOnOne?.map((pm)=>({
+    id: pm.id,
+    from: pm.users.filter((user)=>user.id !== $currentUser?.id)[0]
+  }))
+    .filter(notEmpty)
 
   let selectedRoomId: string | undefined;
   $: selectedRoomId;
 
-  const onSelectRoom = ({ detail: { id }}: CustomEvent<{id: string}>) => selectedRoomId = id;
+  let selectedTypeMessage: string | undefined = 'rooms';
+  $: selectedTypeMessage;
+
+  const onSelectRoom = ({ detail: { id }}: CustomEvent<{id: string}>) => {
+    selectedTypeMessage = 'rooms',
+    selectedRoomId = id
+  };
+  const onSelectOneOnOne = ({ detail: { id }}: CustomEvent<{id: string}>) => {
+    selectedTypeMessage = 'one-on-one';
+    selectedRoomId = id;
+  }
 
   $: {
     if(!selectedRoomId) {
@@ -76,11 +115,23 @@
             {/each}
           </List>
         </NavContainer>
-        {#if $users && $users.length }
+        {#if oneOnOneUsers && oneOnOneUsers.length }
           <NavContainer title="Direct Messages">
             <List>
-              {#each $users as user}
-                <ListItemUser {...user} />
+              {#each oneOnOneUsers as pm}
+                {#await getUser(pm.from)}
+                  <Spinner />
+                {:then user}
+                  {#if user}
+                    <ListItemUser
+                      id={pm.id}
+                      picture={user.picture}
+                      username={user.username}
+                      online={user.online}
+                      on:select={onSelectOneOnOne}
+                    />
+                  {/if}
+                {/await}
               {/each}
             </List>
           </NavContainer>
@@ -88,7 +139,7 @@
       </div>
     </nav>
     <main class="content">
-      <ChatBox roomId={selectedRoomId} />
+      <ChatBox type={selectedTypeMessage} id={selectedRoomId} />
     </main>
     <aside></aside>
     <footer></footer>

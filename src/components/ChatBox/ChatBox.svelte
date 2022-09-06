@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { SendEventData } from '$system/Messaging/Editor/Editor.svelte';
+  import type { SendEventData } from '$components/Messaging/Editor/Editor.svelte';
   import { derived } from 'svelte/store';
 
   import { createStoreCollection, orderBy, limit, type StoreFirestoreCollection } from '$stores/firestore';
@@ -12,25 +12,27 @@
 
   import Message from '$components/Message.svelte';
   import MessagesList from '$components/ChatBox/MessagesList.svelte';
-  import Editor from '$system/Messaging/Editor';
+  import Editor from '$components/Messaging/Editor';
+  import { debounce } from '$helpers/debounce';
 
-  export let roomId: string | undefined;
+  export let id: string | undefined;
+  export let type: string | undefined;
 
   let paginations: StoreFirestoreCollection<MessageData>[] = [];
 
   let messageStore: StoreFirestoreCollection<MessageData>;
   let prevRoomId: string | undefined;
   $: {
-    if(roomId && prevRoomId !== roomId) {
+    if(type && id && prevRoomId !== id) {
       const initNumberOfMessages = Math.ceil(document.body.offsetHeight / 60) + 5;
       messageStore = createStoreCollection({
         converter: messageConverter,
         containtes: [orderBy('date', 'desc'), limit(initNumberOfMessages)],
-        paths: ['rooms', roomId, 'messages']
+        paths: [type, id, 'messages']
       });
       paginations = [messageStore];
     }
-    prevRoomId = roomId;
+    prevRoomId = id;
   }
 
   $: messages = derived<StoreFirestoreCollection<MessageData>[], MessageData[]>(
@@ -63,12 +65,12 @@
   let prevLastDate: Timestamp;
   const morePreviousMessage = async () => {
     const lastDate = $messages[$messages.length -1].date;
-    if(!roomId || prevLastDate === lastDate) return;
+    if(!type || !id || prevLastDate === lastDate) return;
     loading = true;
     paginations = [...paginations, createStoreCollection({
       converter: messageConverter,
       containtes: [orderBy('date', 'desc'), limit(10), startAfter(lastDate)],
-      paths: ['rooms', roomId, 'messages']
+      paths: [type, id, 'messages']
     })]
     messages.subscribe(()=>{
       loading = false;
@@ -86,19 +88,31 @@
     }, 300)
   }
 
+  let isBottom = true;
+  let isScrolling = false;
+
+  const onMounted = debounce(async ()=>{
+    console.log(isScrolling)
+    if(!isScrolling){
+      await virtualList.scrollToBottom();
+    }
+  })
 </script>
 
-{#if $messages?.length && $currentUser}
-  {#key roomId}
+{#if id && $messages?.length && $currentUser}
+  {#key id}
     <MessagesList
       bind:this={virtualList}
       items={[...$messages].reverse()}
       on:infinite={morePreviousMessage}
       bind:loading
       bind:paddingListBottom
+      bind:isBottom
+      bind:isScrolling
     >
       <svelte:fragment slot="item" let:item>
         <Message
+          on:mounted={onMounted}
           isCurrentUser={item.from.id === $currentUser.id}
           text={item.text}
           timestamp={item.date.seconds * 1000}
@@ -113,7 +127,7 @@
     bind:showTextEditing
   />
 {/if}
-
+<!--
 <style lang="postcss">
   /* div {
     overflow: auto;
@@ -131,4 +145,4 @@
   /* svelte-virtual-list-row:nth-child(1) {
     margin-top: auto;
   } */
-</style>
+</style> -->

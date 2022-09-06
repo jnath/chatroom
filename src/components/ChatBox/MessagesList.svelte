@@ -6,9 +6,10 @@
   import type { MessageData } from '$models/Message';
 
   export let items: MessageData[] = [];
-  let itemsTmp: MessageData[] = [];
   export let loading = true
   export let paddingListBottom = 0;
+
+
   let start: number;
   let end: number;
 	let virtualInfiniteList: VirtualInfiniteList<MessageData>
@@ -16,10 +17,12 @@
   interface $$Slots {
     item: {
       item: MessageData;
+      index: number;
     };
   }
 
-  export let isBottom = false;
+  export let isBottom = true;
+  export let isScrolling = false;
 
   export async function scrollToBottom(){
     await tick();
@@ -28,8 +31,8 @@
 
   async function onInitialize() {
     isBottom = true;
+    isScrolling = false;
 	}
-
 
   async function onReachedBottom(){
     isBottom = true;
@@ -39,59 +42,52 @@
     isBottom = false;
   }
 
-  $: {
-    if(isBottom && items.length){
-      setTimeout(() => {
-        virtualInfiniteList.scrollToBottom()
-      }, 100);
-    }
+  const onWheel = ()=>{
+    isScrolling = true;
   }
+
+  // $: {
+  //   if(isBottom && items.length){
+  //     // messageList.scrollTo(0, messageList.scrollHeight)
+  //     virtualInfiniteList.scrollToBottom()
+  //   }
+  // }
 
   onMount(async () => {
     loading = false;
-    itemsTmp = [...items];
-    await tick();
-    virtualInfiniteList.scrollToBottom();
   })
+
+
 
   // $: paddingListBottom = showTextEditing ? 24 : 0;
 
-  $: {
-    if(virtualInfiniteList && paddingListBottom !== undefined){
-      virtualInfiniteList.scrollToBottom();
-    }
-  }
+  // $: {
+  //   if(virtualInfiniteList && paddingListBottom !== undefined){
+  //     virtualInfiniteList.scrollToBottom();
+  //   }
+  // }
 </script>
 
 <VirtualInfiniteList
   direction={Direction.top}
   {loading}
-  items={itemsTmp}
-  persists={0}
+  items={items}
+  persists={1}
   uniqueKey={'id'}
   on:initialize={onInitialize}
   on:infinite
   on:scroll={onScroll}
+  on:wheel={onWheel}
   on:reached:bottom={onReachedBottom}
   bind:start
   bind:end
   bind:this={virtualInfiniteList}
   bind:paddingListBottom
 >
-  <svelte:fragment slot="item" let:item >
-    <slot name="item" {item} />
+  <svelte:fragment slot="item" let:item let:index>
+    <slot name="item" {item} {index} />
   </svelte:fragment>
   <div class="loader" slot="loader">
     Loading...
   </div>
 </VirtualInfiniteList>
-
-<style land="postcss">
-
-	.loader {
-		justify-content: center;
-		align-items: center;
-		display: flex;
-		min-height: 3rem;
-	}
-</style>
